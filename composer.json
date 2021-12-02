@@ -6,6 +6,7 @@
             "email": "kenjiro.kubota@gmail.com"
         }
     ],
+    "license": "MIT License",
     "scripts": {
         "test": [
             "phpunit"

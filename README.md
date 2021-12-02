@@ -1,4 +1,9 @@
 # PHP-DEL
+[![Unit Test](https://github.com/kubotak-is/php-del/actions/workflows/phpunit.yml/badge.svg?branch=main)](https://github.com/kubotak-is/php-del/actions/workflows/phpunit.yml)
+[![Latest Stable Version](http://poser.pugx.org/kubotak-is/php-del/v)](https://packagist.org/packages/kubotak-is/php-del)
+[![PHP Version Require](http://poser.pugx.org/kubotak-is/php-del/require/php)](https://packagist.org/packages/kubotak-is/php-del)
+[![License](http://poser.pugx.org/kubotak-is/php-del/license)](https://packagist.org/packages/kubotak-is/php-del)
+
 Tool to remove code based on specific comments.
 
 ## Configuration
