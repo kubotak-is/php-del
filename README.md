@@ -2,7 +2,7 @@
 Tool to remove code based on specific comments.
 
 ## Configuration
-Create phpdel.json in the root directory of the project
+Create php-del.json in the root directory of the project
 
 ```json
 {
