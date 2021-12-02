@@ -27,8 +27,8 @@ class Config
         return $this->dirs;
     }
 
-    public function getExtensions(): string
+    public function getExtensions(): array
     {
-        return implode(",", $this->extensions);
+        return $this->extensions;
     }
 }
