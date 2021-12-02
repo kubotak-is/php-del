@@ -1,0 +1,8 @@
+{
+  "dirs": [
+    "tests"
+  ],
+  "extensions": [
+    "php"
+  ]
+}
