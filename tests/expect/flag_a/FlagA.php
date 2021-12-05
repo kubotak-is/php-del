@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-class Test1
+class FlagA
 {
     public function hoge()
     {
@@ -11,5 +11,10 @@ class Test1
     {
         $d = 2;
         $c = 3;
+    }
+
+    public function piyo()
+    {
+        $f = 2;
     }
 }

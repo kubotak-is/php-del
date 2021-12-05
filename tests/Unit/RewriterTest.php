@@ -5,9 +5,9 @@ class RewriterTest extends \PHPUnit\Framework\TestCase
 {
     public function testRewrite()
     {
-        $text = file_get_contents(__DIR__ . '/../dir/1/Test1.php');
+        $text = file_get_contents(__DIR__ . '/../actual/flag_a/FlagA.php');
         $rewriter = new \PHPDel\Rewriter($text);
-        $result = $rewriter->exec('flag_1');
+        $result = $rewriter->exec('flag_a');
 
         self::assertDoesNotMatchRegularExpression('/php-del start flag_1$/', $result);
         self::assertDoesNotMatchRegularExpression('/php-del end flag_1$/', $result);
@@ -16,7 +16,7 @@ class RewriterTest extends \PHPUnit\Framework\TestCase
         self::assertNotFalse(strpos($result, '$c = 3;'));
 
         // Perfect matching
-        $expect = file_get_contents(__DIR__ . '/Rewrited.php');
+        $expect = file_get_contents(__DIR__ . '/../expect/flag_a/FlagA.php');
         self::assertEquals($expect, $result);
     }
 }

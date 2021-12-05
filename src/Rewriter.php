@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 namespace PHPDel;
 
+use PHPDel\Comment\DeleteEndComment;
+use PHPDel\Comment\DeleteStartComment;
+use PHPDel\Comment\IgnoreEndComment;
+use PHPDel\Comment\IgnoreStartComment;
+
 class Rewriter
 {
     private int $count = 0;
@@ -22,20 +27,12 @@ class Rewriter
     {
         $text = $this->text;
         while (true) {
-            $startPhrase = "/** php-del start {$deleteFlag} */";
-            $startPosition = mb_strpos($text, $startPhrase);
-            if ($startPosition === false) {
+            $deleteStartComment = new DeleteStartComment($text, $deleteFlag);
+            $deleteEndComment = new DeleteEndComment($text, $deleteFlag);
+            if (!$deleteStartComment->has() || !$deleteEndComment->has()) {
                 break;
             }
-            $startPosition = mb_strrpos(mb_strstr($text, $startPhrase, true), PHP_EOL);
-
-            $endPhrase = "/** php-del end {$deleteFlag} */";
-            $endPosition = mb_strpos($text, $endPhrase);
-            if ($endPosition === false) {
-                break;
-            }
-            $endPosition += mb_strlen($endPhrase);
-            $deleteStr = mb_substr($text, $startPosition, $endPosition - $startPosition);
+            $deleteStr = mb_substr($text, $deleteStartComment->position(), $deleteEndComment->position() - $deleteStartComment->position());
 
             $ignore = $this->ignore($deleteStr);
 
@@ -52,20 +49,12 @@ class Rewriter
             /**
              * コメントを含む開始位置から終了位置までを検索して削除
              */
-            $startPhrase = "/** php-del ignore start */";
-            $startPosition = mb_strpos($text, $startPhrase);
-            if ($startPosition === false) {
+            $ignoreStartComment = new IgnoreStartComment($text);
+            $ignoreEndComment = new IgnoreEndComment($text);
+            if (!$ignoreStartComment->has() || !$ignoreEndComment->has()) {
                 break;
             }
-            $startPosition = mb_strrpos(mb_strstr($text, $startPhrase, true), PHP_EOL);
-
-            $endPhrase = "/** php-del ignore end */";
-            $endPosition = mb_strpos($text, $endPhrase);
-            if ($endPosition === false) {
-                break;
-            }
-            $endPosition += mb_strlen($endPhrase);
-            $deleteStr = mb_substr($text, $startPosition, $endPosition - $startPosition);
+            $deleteStr = mb_substr($text, $ignoreStartComment->position(), $ignoreEndComment->position() - $ignoreStartComment->position());
 
             /**
              * ignoreコメントを除外した、ignoreしたいコードのみを抽出
@@ -79,18 +68,12 @@ class Rewriter
 
     private function ignoreCode(string $text): string
     {
-        $startPhrase = "/** php-del ignore start */";
-        $startPosition = mb_strpos($text, $startPhrase);
-        if ($startPosition === false) {
-            return '';
-        }
-        $startPosition += mb_strlen($startPhrase);
-        $endPhrase = "/** php-del ignore end */";
-        $endPosition = mb_strpos($text, $endPhrase);
-        if ($endPosition === false) {
-            return '';
-        }
-        $endPosition = mb_strrpos(mb_strstr($text, $endPhrase, true), PHP_EOL);
-        return mb_substr($text, $startPosition, $endPosition - $startPosition);
+        $ignoreStartComment = new IgnoreStartComment($text);
+        $ignoreEndComment = new IgnoreEndComment($text);
+        return mb_substr(
+            $text,
+            $ignoreStartComment->positionWithCode(),
+            $ignoreEndComment->positionWithCode() - $ignoreStartComment->positionWithCode()
+        );
     }
 }
