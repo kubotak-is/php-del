@@ -6,13 +6,13 @@ namespace PHPDel\Comment;
 abstract class Comment
 {
     protected string $target;
-    protected string $flag;
+    protected ?string $flag;
     protected string $matchPhrase;
     protected int $matchIndex;
     protected bool $has = false;
     protected int $position = 0;
 
-    public function __construct(string $target, string $flag)
+    public function __construct(string $target, ?string $flag = null)
     {
         $this->target = $target;
         $this->flag = $flag;
