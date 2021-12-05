@@ -7,7 +7,7 @@ class IgnoreEndComment extends Comment implements IgnoreCommentInterface
 {
     protected function matchPattern(): string
     {
-        return "/(\/\/|\/\*)(\*|\n|\s)*+php-del\s+ignore\s+end+(|\*|\n|\s)*($|\/)/iu";
+        return "/(\/\/|\/\*)(\*|\n|\s)*+php-del\s+ignore\s+end+((|\*|\n|\s)*.\/|)/iu";
     }
 
     protected function setPosition(): void

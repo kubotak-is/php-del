@@ -7,7 +7,7 @@ class DeleteEndComment extends Comment
 {
     protected function matchPattern(): string
     {
-        return "/(\/\/|\/\*)(\*|\n|\s)*+php-del\s+end\s+{$this->flag}+(|\*|\n|\s)*($|\/)/iu";
+        return "/(\/\/|\/\*)(\*|\n|\s)*+php-del\s+end\s+{$this->flag}+((|\*|\n|\s)*.\/|)/iu";
     }
 
     protected function setPosition(): void
