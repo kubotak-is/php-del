@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 namespace PHPDel;
 
-use PHPDel\Comment\DeleteEndComment;
-use PHPDel\Comment\DeleteStartComment;
-use PHPDel\Comment\IgnoreEndComment;
-use PHPDel\Comment\IgnoreStartComment;
+use PHPDel\Comment\DeleteComment;
+use PHPDel\Comment\IgnoreComment;
 
 class Rewriter
 {
@@ -27,12 +25,11 @@ class Rewriter
     {
         $text = $this->text;
         while (true) {
-            $deleteStartComment = new DeleteStartComment($text, $deleteFlag);
-            $deleteEndComment = new DeleteEndComment($text, $deleteFlag);
-            if (!$deleteStartComment->has() || !$deleteEndComment->has()) {
+            $deleteComment = new DeleteComment($text, $deleteFlag);
+            if (!$deleteComment->has()) {
                 break;
             }
-            $deleteStr = mb_substr($text, $deleteStartComment->position(), $deleteEndComment->position() - $deleteStartComment->position());
+            $deleteStr = mb_substr($text, $deleteComment->startPosition(), $deleteComment->endPosition() - $deleteComment->startPosition());
 
             $ignore = $this->ignore($deleteStr);
 
@@ -49,12 +46,11 @@ class Rewriter
             /**
              * コメントを含む開始位置から終了位置までを検索して削除
              */
-            $ignoreStartComment = new IgnoreStartComment($text);
-            $ignoreEndComment = new IgnoreEndComment($text);
-            if (!$ignoreStartComment->has() || !$ignoreEndComment->has()) {
+            $ignoreComment = new IgnoreComment($text);
+            if (!$ignoreComment->has()) {
                 break;
             }
-            $deleteStr = mb_substr($text, $ignoreStartComment->position(), $ignoreEndComment->position() - $ignoreStartComment->position());
+            $deleteStr = mb_substr($text, $ignoreComment->startPosition(), $ignoreComment->endPosition() - $ignoreComment->startPosition());
 
             /**
              * ignoreコメントを除外した、ignoreしたいコードのみを抽出
@@ -68,12 +64,11 @@ class Rewriter
 
     private function ignoreCode(string $text): string
     {
-        $ignoreStartComment = new IgnoreStartComment($text);
-        $ignoreEndComment = new IgnoreEndComment($text);
+        $ignoreComment = new IgnoreComment($text);
         return mb_substr(
             $text,
-            $ignoreStartComment->positionWithCode(),
-            $ignoreEndComment->positionWithCode() - $ignoreStartComment->positionWithCode()
+            $ignoreComment->startPositionWithCode(),
+            $ignoreComment->endPositionWithCode() - $ignoreComment->startPositionWithCode()
         );
     }
 }
