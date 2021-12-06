@@ -16,5 +16,6 @@ class FlagA
     public function piyo()
     {
         $f = 2;
+        $h = 4;
     }
 }
