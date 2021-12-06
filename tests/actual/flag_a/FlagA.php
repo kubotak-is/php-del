@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 class FlagA
 {
+    public string $foo = ''; // php-del line flag_a
     public function hoge()
     {
         /** php-del start flag_a */
@@ -36,5 +37,7 @@ class FlagA
          */
         $g = 3;
         // php-del end flag_a
+        $h = 4;
+        $i = 5; // php-del line flag_a
     }
 }

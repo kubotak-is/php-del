@@ -5,6 +5,7 @@ namespace PHPDel;
 
 use PHPDel\Comment\DeleteComment;
 use PHPDel\Comment\IgnoreComment;
+use PHPDel\Comment\LineComment;
 
 class Rewriter
 {
@@ -24,6 +25,7 @@ class Rewriter
     public function exec(string $deleteFlag): string
     {
         $text = $this->text;
+        // multi line delete
         while (true) {
             $deleteComment = new DeleteComment($text, $deleteFlag);
             if (!$deleteComment->has()) {
@@ -34,6 +36,16 @@ class Rewriter
             $ignore = $this->ignore($deleteStr);
 
             $text = str_replace($deleteStr, $ignore, $text);
+            ++$this->count;
+        }
+        // single line delete
+        while (true) {
+            $lineComment = new LineComment($text, $deleteFlag);
+            if (!$lineComment->has()) {
+                break;
+            }
+            $deleteStr = mb_substr($text, $lineComment->startPosition(), $lineComment->endPosition() - $lineComment->startPosition());
+            $text = str_replace($deleteStr, '', $text);
             ++$this->count;
         }
         return $text;

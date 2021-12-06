@@ -7,8 +7,6 @@ abstract class SandWitchComment extends Comment
 {
     protected string $startPhrase;
     protected string $endPhrase;
-    protected int $startPosition;
-    protected int $endPosition;
     private bool $hasStart = false;
     private bool $hasEnd = false;
 
@@ -51,14 +49,4 @@ abstract class SandWitchComment extends Comment
     abstract protected function matchEndPattern(): string;
     abstract protected function setStartPosition(): void;
     abstract protected function setEndPosition(): void;
-
-    public function startPosition(): int
-    {
-        return $this->startPosition;
-    }
-
-    public function endPosition(): int
-    {
-        return $this->endPosition;
-    }
 }

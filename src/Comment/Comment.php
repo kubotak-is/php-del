@@ -8,6 +8,8 @@ abstract class Comment
     protected string $target;
     protected ?string $flag;
     protected bool $has = false;
+    protected int $startPosition;
+    protected int $endPosition;
 
     public function __construct(string $target, ?string $flag = null)
     {
@@ -18,5 +20,15 @@ abstract class Comment
     public function has(): bool
     {
         return $this->has;
+    }
+
+    public function startPosition(): int
+    {
+        return $this->startPosition;
+    }
+
+    public function endPosition(): int
+    {
+        return $this->endPosition;
     }
 }
