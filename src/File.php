@@ -12,9 +12,9 @@ class File
         return $files;
     }
 
-    public static function rglob(string $dir, array $exts, array &$results=[]) {
+    private static function rglob(string $dir, array $exts, array &$results = []): array
+    {
         $ls = glob($dir);
-
         if (is_array($ls)) {
             foreach ($ls as $item) {
                 if (is_dir($item)) {

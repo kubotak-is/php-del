@@ -25,13 +25,22 @@ class IgnoreComment extends SandWitchComment
         $this->endPosition = mb_strpos($this->target, $this->endPhrase) + mb_strlen($this->endPhrase);
     }
 
-    public function startPositionWithCode(): int
+    private function startPositionWithCode(): int
     {
-        return mb_strpos($this->target, $this->startPhrase) + mb_strlen($this->startPhrase);
+        return mb_strpos($this->targetCode(), $this->startPhrase) + mb_strlen($this->startPhrase);
     }
 
-    public function endPositionWithCode(): int
+    private function endPositionWithCode(): int
     {
-        return mb_strrpos(mb_strstr($this->target, $this->endPhrase, true), PHP_EOL);
+        return mb_strrpos(mb_strstr($this->targetCode(), $this->endPhrase, true), PHP_EOL);
+    }
+
+    public function ignoreCode(): string
+    {
+        return mb_substr(
+            $this->targetCode(),
+            $this->startPositionWithCode(),
+            $this->endPositionWithCode() - $this->startPositionWithCode()
+        );
     }
 }

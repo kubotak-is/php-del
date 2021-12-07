@@ -23,7 +23,7 @@ class LineComment extends Comment
         $matches = [];
         $result = preg_match($this->matchPattern(), $this->target, $matches, PREG_OFFSET_CAPTURE);
         if ($result === 1) {
-            $this->has = true;
+            $this->found = true;
             $this->phrase = $matches[0][0];
             $this->setStartPosition();
             $this->setEndPosition();

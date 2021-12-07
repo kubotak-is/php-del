@@ -7,7 +7,7 @@ abstract class Comment
 {
     protected string $target;
     protected ?string $flag;
-    protected bool $has = false;
+    protected bool $found = false;
     protected int $startPosition;
     protected int $endPosition;
 
@@ -17,18 +17,13 @@ abstract class Comment
         $this->flag = $flag;
     }
 
-    public function has(): bool
+    public function notfound(): bool
     {
-        return $this->has;
+        return ! $this->found;
     }
 
-    public function startPosition(): int
+    public function targetCode(): string
     {
-        return $this->startPosition;
-    }
-
-    public function endPosition(): int
-    {
-        return $this->endPosition;
+        return mb_substr($this->target, $this->startPosition, $this->endPosition - $this->startPosition);
     }
 }

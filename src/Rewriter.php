@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace PHPDel;
 
-use PHPDel\Comment\DeleteComment;
-use PHPDel\Comment\IgnoreComment;
-use PHPDel\Comment\LineComment;
+use PHPDel\Comment\{DeleteComment,IgnoreComment,LineComment};
 
 class Rewriter
 {
@@ -28,24 +26,24 @@ class Rewriter
         // multi line delete
         while (true) {
             $deleteComment = new DeleteComment($text, $deleteFlag);
-            if (!$deleteComment->has()) {
+            if ($deleteComment->notfound()) {
                 break;
             }
-            $deleteStr = mb_substr($text, $deleteComment->startPosition(), $deleteComment->endPosition() - $deleteComment->startPosition());
+            $deleteCode = $deleteComment->targetCode();
 
-            $ignore = $this->ignore($deleteStr);
+            $ignore = $this->ignore($deleteCode);
 
-            $text = str_replace($deleteStr, $ignore, $text);
+            $text = str_replace($deleteCode, $ignore, $text);
             ++$this->count;
         }
         // single line delete
         while (true) {
             $lineComment = new LineComment($text, $deleteFlag);
-            if (!$lineComment->has()) {
+            if ($lineComment->notfound()) {
                 break;
             }
-            $deleteStr = mb_substr($text, $lineComment->startPosition(), $lineComment->endPosition() - $lineComment->startPosition());
-            $text = str_replace($deleteStr, '', $text);
+            $deleteCode = $lineComment->targetCode();
+            $text = str_replace($deleteCode, '', $text);
             ++$this->count;
         }
         return $text;
@@ -59,28 +57,18 @@ class Rewriter
              * コメントを含む開始位置から終了位置までを検索して削除
              */
             $ignoreComment = new IgnoreComment($text);
-            if (!$ignoreComment->has()) {
+            if ($ignoreComment->notfound()) {
                 break;
             }
-            $deleteStr = mb_substr($text, $ignoreComment->startPosition(), $ignoreComment->endPosition() - $ignoreComment->startPosition());
+            $deleteCode = $ignoreComment->targetCode();
 
             /**
              * ignoreコメントを除外した、ignoreしたいコードのみを抽出
              */
-            $ignore .= $this->ignoreCode($deleteStr);
+            $ignore .= $ignoreComment->ignoreCode();
 
-            $text = str_replace($deleteStr, '', $text);
+            $text = str_replace($deleteCode, '', $text);
         }
         return $ignore;
-    }
-
-    private function ignoreCode(string $text): string
-    {
-        $ignoreComment = new IgnoreComment($text);
-        return mb_substr(
-            $text,
-            $ignoreComment->startPositionWithCode(),
-            $ignoreComment->endPositionWithCode() - $ignoreComment->startPositionWithCode()
-        );
     }
 }

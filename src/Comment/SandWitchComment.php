@@ -7,15 +7,15 @@ abstract class SandWitchComment extends Comment
 {
     protected string $startPhrase;
     protected string $endPhrase;
-    private bool $hasStart = false;
-    private bool $hasEnd = false;
+    private bool $foundStart = false;
+    private bool $foundEnd = false;
 
     public function __construct(string $target, ?string $flag = null)
     {
         parent::__construct($target, $flag);
         $this->setStart();
         $this->setEnd();
-        $this->setHas();
+        $this->setFound();
     }
 
     private function setStart(): void
@@ -23,7 +23,7 @@ abstract class SandWitchComment extends Comment
         $matches = [];
         $result = preg_match($this->matchStartPattern(), $this->target, $matches, PREG_OFFSET_CAPTURE);
         if ($result === 1) {
-            $this->hasStart = true;
+            $this->foundStart = true;
             $this->startPhrase = $matches[0][0];
             $this->setStartPosition();
         }
@@ -34,15 +34,15 @@ abstract class SandWitchComment extends Comment
         $matches = [];
         $result = preg_match($this->matchEndPattern(), $this->target, $matches, PREG_OFFSET_CAPTURE);
         if ($result === 1) {
-            $this->hasEnd = true;
+            $this->foundEnd = true;
             $this->endPhrase = $matches[0][0];
             $this->setEndPosition();
         }
     }
 
-    private function setHas(): void
+    private function setFound(): void
     {
-        $this->has = $this->hasStart && $this->hasEnd;
+        $this->found = $this->foundStart && $this->foundEnd;
     }
 
     abstract protected function matchStartPattern(): string;
