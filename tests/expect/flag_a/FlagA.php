@@ -17,5 +17,8 @@ class FlagA
     {
         $f = 2;
         $h = 4;
+        if ($f && $h) {
+            // something
+        }
     }
 }

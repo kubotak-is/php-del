@@ -39,5 +39,8 @@ class FlagA
         // php-del end flag_a
         $h = 4;
         $i = 5; // php-del line flag_a
+        if ($f && $h/** php-del start flag_a */ && $g/** php-del end flag_a */) {
+            // something
+        }
     }
 }
