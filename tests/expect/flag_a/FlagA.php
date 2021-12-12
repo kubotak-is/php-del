@@ -21,4 +21,12 @@ class FlagA
             // something
         }
     }
+
+    public function commentNextToComment()
+    {
+        $a = 1;
+        // NOTE ignore startに続けてコメント
+        $c = 3;
+        // NOTE endに続けてコメント
+    }
 }

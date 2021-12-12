@@ -43,4 +43,19 @@ class FlagA
             // something
         }
     }
+
+    public function commentNextToComment()
+    {
+        $a = 1;
+        // php-del start flag_a
+        // NOTE startに続けてコメント
+        $b = 2;
+        // php-del ignore start
+        // NOTE ignore startに続けてコメント
+        $c = 3;
+        // php-del ignore end
+        // NOTE ignore endに続けてコメント
+        // php-del end flag_a
+        // NOTE endに続けてコメント
+    }
 }
