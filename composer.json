@@ -1,5 +1,6 @@
 {
     "name": "kubotak-is/php-del",
+    "description": "Tool to remove code based on specific comments.",
     "authors": [
         {
             "name": "kubotak-is",
@@ -14,7 +15,8 @@
     },
     "require": {
         "php": ">=7.4",
-         "ext-mbstring": "*"
+         "ext-mbstring": "*",
+        "league/climate": "^3.7"
     },
     "bin": [
         "php-del"
