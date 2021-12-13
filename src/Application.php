@@ -15,7 +15,12 @@ class Application
         $cli->blink()->dim('Finding flag...');
         $finder = new Finder($config);
         $finder->findFlag();
-        $input    = $cli->radio('Please choice me one of the following flag:', (array)$finder->getFlagList());
+        $flagList = $finder->getFlagList();
+        if ($flagList->empty()) {
+            $cli->backgroundYellow()->out("Nothing flag.");
+            return;
+        }
+        $input = $cli->radio('Please choice me one of the following flag:', (array)$finder->getFlagList());
         $deleteFlag = $input->prompt();
         foreach ($finder->getTargetFileList() as $file) {
             $text = file_get_contents($file);

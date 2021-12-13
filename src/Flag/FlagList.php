@@ -7,4 +7,8 @@ use ArrayIterator;
 
 class FlagList extends ArrayIterator
 {
+    public function empty(): bool
+    {
+        return $this->count() === 0;
+    }
 }
