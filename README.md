@@ -6,6 +6,11 @@
 
 Tool to remove code based on specific comments.
 
+## Install
+```
+composer require --dev kubotak-is/php-del
+```
+
 ## Configuration
 Create php-del.json in the root directory of the project
 
@@ -37,16 +42,31 @@ public function code() {
 }
 ```
 
-You can use the composer command to erase the target code by specifying a flag.
+Run php-del from composer command.
 
 ```
-/vendor/bin/php-del flag-a
+/vendor/bin/php-del
+```
+
+Select the flag and enter to perform the deletion.
+
+```
+Finding flag...
+Please choice me one of the following flag: (press <Enter> to select)
+  ○ flag-1 (1)  
 ```
 
 Deletion result
 ```php
 public function code() {
 }
+```
+
+### One Line code delete
+To delete only one line.
+
+```php
+use Hoge\Fuga\Piyo; // php-del line flag-a
 ```
 
 ### Codes not covered

@@ -3,33 +3,32 @@ declare(strict_types=1);
 
 namespace PHPDel;
 
+use League\CLImate\CLImate;
 use PHPDel\Factory\ConfigFactory;
 
 class Application
 {
-    public static function main(string $deleteFlag): void
+    public static function main(): void
     {
-        if ($deleteFlag === '') {
-            Line::error(' Delete flag is required ');
-            return;
-        }
-        Line::standard("Start php-del".PHP_EOL."Delete is \"{$deleteFlag}\"");
+        $cli = new CLImate();
         $config = ConfigFactory::make();
-        foreach ($config->getDirs() as $dir) {
-            $files = File::getFiles($dir, $config);
-            foreach ($files as $file) {
-                $text = file_get_contents($file);
-                $rewriter = new Rewriter($text);
-                $text = $rewriter->exec($deleteFlag);
-                if ($rewriter->count() === 0) {
-                    continue;
-                }
-                $result = file_put_contents($file, $text);
-                $result !== false ?
-                    Line::success($file . "({$rewriter->count()})") :
-                    Line::error($file);
+        $cli->blink()->dim('Finding flag...');
+        $finder = new Finder($config);
+        $finder->findFlag();
+        $input    = $cli->radio('Please choice me one of the following flag:', (array)$finder->getFlagList());
+        $deleteFlag = $input->prompt();
+        foreach ($finder->getTargetFileList() as $file) {
+            $text = file_get_contents($file);
+            $rewriter = new Rewriter($text);
+            $text = $rewriter->exec($deleteFlag);
+            if ($rewriter->count() === 0) {
+                continue;
             }
+            $result = file_put_contents($file, $text);
+            $result !== false ?
+                $cli->backgroundGreen($file . "({$rewriter->count()})") :
+                $cli->backgroundRed($file);
         }
-        Line::standard("End php-del");
+        $cli->out("End php-del");
     }
 }
