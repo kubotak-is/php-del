@@ -3,10 +3,7 @@ declare(strict_types=1);
 
 namespace PHPDel\Flag;
 
-use Stringable;
-
-
-class Flag implements Stringable
+class Flag
 {
     private string $flag;
     private int $count = 1;
