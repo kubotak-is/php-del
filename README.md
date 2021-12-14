@@ -53,7 +53,7 @@ Select the flag and enter to perform the deletion.
 ```
 Finding flag...
 Please choice me one of the following flag: (press <Enter> to select)
-  ○ flag-1 (1)  
+  ○ flag-a (1)  
 ```
 
 Deletion result
