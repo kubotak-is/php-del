@@ -19,4 +19,12 @@ class RewriterTest extends \PHPUnit\Framework\TestCase
         $expect = file_get_contents(__DIR__ . '/../expect/flag_a/FlagA.php');
         self::assertEquals($expect, $result);
     }
+
+    public function testRewriteException()
+    {
+        $this->expectException(\PHPDel\Exception\SandWitchCommentException::class);
+        $text = file_get_contents(__DIR__ . '/../actual/error_flag/ErrorFlag.php');
+        $rewriter = new \PHPDel\Rewriter($text);
+        $rewriter->exec('error-flag');
+    }
 }

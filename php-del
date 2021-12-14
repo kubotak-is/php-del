@@ -25,4 +25,5 @@ if (!defined('PHPDEL_COMPOSER_INSTALL')) {
 
 require PHPDEL_COMPOSER_INSTALL;
 
-PHPDel\Application::main();
+$app = new PHPDel\Application(new \League\CLImate\CLImate());
+$app->main();
