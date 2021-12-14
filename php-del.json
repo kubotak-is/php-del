@@ -1,6 +1,6 @@
 {
   "dirs": [
-    "tests"
+    "tests/actual"
   ],
   "extensions": [
     "php"

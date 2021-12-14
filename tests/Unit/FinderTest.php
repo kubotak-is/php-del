@@ -10,7 +10,7 @@ class FinderTest extends \PHPUnit\Framework\TestCase
         $finder->findFlag();
 
         $targetList = $finder->getTargetFileList();
-        self::assertEquals(2, $targetList->count());
+        self::assertEquals(3, $targetList->count());
 
         $flagList = $finder->getFlagList();
         self::assertEquals('flag_a', $flagList->offsetGet('flag_a')->get());
@@ -18,5 +18,7 @@ class FinderTest extends \PHPUnit\Framework\TestCase
         self::assertEquals('flag_a (7)', $flagList->offsetGet('flag_a'));
         self::assertEquals('flag_b', $flagList->offsetGet('flag_b')->get());
         self::assertEquals(3, $flagList->offsetGet('flag_b')->count());
+        self::assertEquals('error-flag', $flagList->offsetGet('error-flag')->get());
+        self::assertEquals(2, $flagList->offsetGet('error-flag')->count());
     }
 }

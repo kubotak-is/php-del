@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace PHPDel\Comment;
 
+use PHPDel\Exception\SandWitchCommentException;
+
 abstract class SandWitchComment extends Comment
 {
     protected string $startPhrase;
@@ -42,6 +44,12 @@ abstract class SandWitchComment extends Comment
 
     private function setFound(): void
     {
+        if ($this->foundStart && !$this->foundEnd) {
+            throw new SandWitchCommentException("There is a start comment, but no end.");
+        }
+        if (!$this->foundStart && $this->foundEnd) {
+            throw new SandWitchCommentException("There is an end comment, but no start.");
+        }
         $this->found = $this->foundStart && $this->foundEnd;
     }
 
