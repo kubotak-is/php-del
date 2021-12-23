@@ -89,3 +89,15 @@ public function code() {
     $ignore = 2;
 }
 ```
+
+### File delete
+Deletes the file itself by adding a file deletion comment.
+
+```php
+<?php
+
+/**
+ * php-del file flag-a
+ */
+class DeleteClass {}
+```

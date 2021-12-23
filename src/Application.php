@@ -63,6 +63,10 @@ class Application
         foreach ($finder->getTargetFileList() as $file) {
             try {
                 $text = file_get_contents($file);
+                if ($this->deleteFileWhenHasFlag($file, $text, $deleteFlag)) {
+                    $this->cli->backgroundGreen($file . "(delete)");
+                    continue;
+                }
                 $rewriter = new Rewriter($text);
                 $text = $rewriter->exec($deleteFlag);
                 if ($rewriter->count() === 0) {
@@ -81,5 +85,18 @@ class Application
             }
         }
         $this->cli->out("End php-del");
+    }
+
+    private function deleteFileWhenHasFlag(string $file, string $text, string $deleteFlag): bool
+    {
+        $deleter = new Deleter($text);
+        if (!$deleter->isDelete($deleteFlag)) {
+            return false;
+        }
+        $result = unlink($file);
+        if ($result) {
+            return true;
+        }
+        throw new \RuntimeException("Unlink Failed.");
     }
 }

@@ -26,7 +26,7 @@ class Finder
         foreach ($this->allFileList as $file) {
             $text = file_get_contents($file);
             $matches = [];
-            $result = preg_match_all("/php-del+\s+(start|line)\s+(?<flag>[a-z0-9_\-=]*)/iu", $text, $matches);
+            $result = preg_match_all("/php-del+( |　|\t)+(start|line|file)( |　|\t)+(?<flag>[a-z0-9_\-=]*)/iu", $text, $matches);
             if ($result === false || $result === 0) {
                 continue;
             }
