@@ -15,7 +15,7 @@ class LineComment extends Comment
 
     private function matchPattern(): string
     {
-        return "/(\/\/|\/\*)(\*|\s|).!?\n*+php-del\s+line\s+{$this->flag}+((|\*|\s).!?\n*.\/|)/iu";
+        return "/(\/\/|\/\*)(|\*| |　|\t)*php-del( |　|\t)+line( |　|\t)+{$this->flag}+(.*|\s|\n$)/iu";
     }
 
     private function init(): void

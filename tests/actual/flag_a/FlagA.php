@@ -4,6 +4,11 @@ declare(strict_types=1);
 class FlagA
 {
     public string $foo = ''; // php-del line flag_a
+    public string $bar = ''; //php-del line flag_a
+    public string $baz = ''; /* php-del line flag_a */
+    public string $qux = ''; /*php-del line flag_a*/
+    public string $quux = ''; /** php-del line flag_a */
+    public string $corge = ''; /**php-del line flag_a*/
     public function hoge()
     {
         /** php-del start flag_a */
