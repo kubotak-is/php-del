@@ -20,6 +20,11 @@ class FlagA
         if ($f && $h) {
             // something
         }
+        $arr = [
+            'a' => 'a',
+            'b' => 'b',
+            'c' => 'c',
+        ];
     }
 
     public function commentNextToComment()

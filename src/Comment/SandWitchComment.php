@@ -55,13 +55,13 @@ abstract class SandWitchComment extends Comment
 
     protected function setStartPosition(): void
     {
-        $targetBefore = mb_strstr($this->target, $this->startPhrase, true);
+        $targetBefore = (string) mb_strstr($this->target, $this->startPhrase, true);
         // 対象コメント以前に最初に現れる改行までの位置(A)
-        $charUpToPhpEolPosition = mb_strrpos($targetBefore, PHP_EOL);
+        $charUpToPhpEolPosition = (int) mb_strrpos($targetBefore, PHP_EOL);
         // (A)からコメントまでの文字を抽出(B)
         $fromLettersUpToPhpEolToComments = mb_substr($this->target, $charUpToPhpEolPosition, mb_strlen($targetBefore) - $charUpToPhpEolPosition);
         // (B)に改行および空白文字以外が存在するかチェック
-        $charOtherThanPhpEol = preg_match('/(?!.*(\n|\s)).+$/u', $fromLettersUpToPhpEolToComments);
+        $charOtherThanPhpEol = mb_strlen(trim($fromLettersUpToPhpEolToComments, " \t\n\r"));
         $this->startPosition = $charOtherThanPhpEol === 0 ? $charUpToPhpEolPosition : mb_strpos($this->target, $this->startPhrase);
     }
 

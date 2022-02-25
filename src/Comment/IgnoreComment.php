@@ -17,12 +17,14 @@ class IgnoreComment extends SandWitchComment
 
     private function startPositionWithCode(): int
     {
-        return mb_strpos($this->targetCode(), $this->startPhrase) + mb_strlen($this->startPhrase);
+        return (int) mb_strpos($this->targetCode(), $this->startPhrase) + mb_strlen($this->startPhrase);
     }
 
     private function endPositionWithCode(): int
     {
-        return mb_strrpos(mb_strstr($this->targetCode(), $this->endPhrase, true), PHP_EOL);
+        $erasedEnd = mb_strstr($this->targetCode(), $this->endPhrase, true);
+        $eol = mb_strrpos($erasedEnd, PHP_EOL);
+        return $eol === false ? mb_strlen($erasedEnd) : $eol;
     }
 
     public function ignoreCode(): string
