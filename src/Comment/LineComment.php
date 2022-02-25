@@ -32,11 +32,11 @@ class LineComment extends Comment
 
     private function setStartPosition(): void
     {
-        $this->startPosition = mb_strrpos(mb_strstr($this->target, $this->phrase, true), PHP_EOL);
+        $this->startPosition = (int) mb_strrpos(mb_strstr($this->target, $this->phrase, true), PHP_EOL);
     }
 
     private function setEndPosition(): void
     {
-        $this->endPosition = mb_strpos($this->target, $this->phrase) + mb_strlen($this->phrase);
+        $this->endPosition = (int) mb_strpos($this->target, $this->phrase) + mb_strlen($this->phrase);
     }
 }

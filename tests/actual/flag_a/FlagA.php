@@ -47,6 +47,11 @@ class FlagA
         if ($f && $h/** php-del start flag_a */ && $g/** php-del end flag_a */) {
             // something
         }
+        $arr = [
+            'a' => 'a',
+            'b' => /** php-del start flag_a */ true ? 'x' : /** php-del ignore start */'b'/** php-del ignore end *//** php-del end flag_a */,
+            'c' => 'c',
+        ];
     }
 
     public function commentNextToComment()
