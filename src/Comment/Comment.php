@@ -3,18 +3,20 @@ declare(strict_types=1);
 
 namespace PHPDel\Comment;
 
+use PHPDel\Comment\Pattern\CommentPattern;
+
 abstract class Comment
 {
     protected string $target;
-    protected ?string $flag;
     protected bool $found = false;
     protected int $startPosition;
     protected int $endPosition;
+    protected CommentPattern $commentPattern;
 
-    public function __construct(string $target, ?string $flag = null)
+    public function __construct(string $target, CommentPattern $commentPattern)
     {
         $this->target = $target;
-        $this->flag = $flag;
+        $this->commentPattern = $commentPattern;
     }
 
     public function notfound(): bool

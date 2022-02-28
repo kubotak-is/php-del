@@ -3,19 +3,21 @@ declare(strict_types=1);
 
 namespace PHPDel\Comment;
 
+use PHPDel\Comment\Pattern\CommentPattern;
+
 class LineComment extends Comment
 {
     private string $phrase;
 
-    public function __construct(string $target, string $flag)
+    public function __construct(string $target, CommentPattern $commentPattern)
     {
-        parent::__construct($target, $flag);
+        parent::__construct($target, $commentPattern);
         $this->init();
     }
 
     private function matchPattern(): string
     {
-        return "/(\/\/|\/\*)(|\*| |　|\t)*php-del( |　|\t)+line( |　|\t)+{$this->flag}+(.*|\s|\n$)/iu";
+        return $this->commentPattern->matchPatternAtLine();
     }
 
     private function init(): void
