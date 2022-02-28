@@ -101,3 +101,7 @@ Deletes the file itself by adding a file deletion comment.
  */
 class DeleteClass {}
 ```
+
+### Support file
+- .php
+- [.blade.php](/docs/blade.md)

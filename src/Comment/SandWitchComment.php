@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace PHPDel\Comment;
 
+use PHPDel\Comment\Pattern\CommentPattern;
 use PHPDel\Exception\SandWitchCommentException;
 
 abstract class SandWitchComment extends Comment
@@ -12,9 +13,9 @@ abstract class SandWitchComment extends Comment
     private bool $foundStart = false;
     private bool $foundEnd = false;
 
-    public function __construct(string $target, ?string $flag = null)
+    public function __construct(string $target, CommentPattern $commentPattern)
     {
-        parent::__construct($target, $flag);
+        parent::__construct($target, $commentPattern);
         $this->setStart();
         $this->setEnd();
         $this->setFound();

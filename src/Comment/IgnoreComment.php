@@ -7,12 +7,12 @@ class IgnoreComment extends SandWitchComment
 {
     protected function matchStartPattern(): string
     {
-        return "/(\/\*(\*|\n|\s)*+php-del\s+ignore\s+start+((|\*|\n|\s)*.\/|))|(\/\/(\*|\s)*+php-del\s+ignore\s+start+(|\s)*)/iu";
+        return $this->commentPattern->startMatchPatternAtIgnore();
     }
 
     protected function matchEndPattern(): string
     {
-        return "/(\/\*(\*|\n|\s)*+php-del\s+ignore\s+end+((|\*|\n|\s)*.\/|))|(\/\/(\*|\s)*+php-del\s+ignore\s+end+(|\s)*)/iu";
+        return $this->commentPattern->endMatchPatternAtIgnore();
     }
 
     private function startPositionWithCode(): int

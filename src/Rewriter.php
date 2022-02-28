@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PHPDel;
 
-use PHPDel\Comment\{DeleteComment,IgnoreComment,LineComment};
+use PHPDel\Comment\{Pattern\CommentPattern, DeleteComment, IgnoreComment, LineComment};
 
 class Rewriter
 {
@@ -20,25 +20,25 @@ class Rewriter
         return $this->count;
     }
 
-    public function exec(string $deleteFlag): string
+    public function exec(CommentPattern $commentPattern): string
     {
         $text = $this->text;
         // multi line delete
         while (true) {
-            $deleteComment = new DeleteComment($text, $deleteFlag);
+            $deleteComment = new DeleteComment($text, $commentPattern);
             if ($deleteComment->notfound()) {
                 break;
             }
             $deleteCode = $deleteComment->targetCode();
 
-            $ignore = $this->ignore($deleteCode);
+            $ignore = $this->ignore($deleteCode, $commentPattern);
 
             $text = str_replace($deleteCode, $ignore, $text);
             ++$this->count;
         }
         // single line delete
         while (true) {
-            $lineComment = new LineComment($text, $deleteFlag);
+            $lineComment = new LineComment($text, $commentPattern);
             if ($lineComment->notfound()) {
                 break;
             }
@@ -49,14 +49,14 @@ class Rewriter
         return $text;
     }
 
-    private function ignore(string $text): string
+    private function ignore(string $text, CommentPattern $commentPattern): string
     {
         $ignore = '';
         while (true) {
             /**
              * コメントを含む開始位置から終了位置までを検索して削除
              */
-            $ignoreComment = new IgnoreComment($text);
+            $ignoreComment = new IgnoreComment($text, $commentPattern);
             if ($ignoreComment->notfound()) {
                 break;
             }

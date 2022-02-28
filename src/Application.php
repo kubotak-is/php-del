@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace PHPDel;
 
 use League\CLImate\CLImate;
+use PHPDel\Comment\CommentPatternProvider;
 use PHPDel\Factory\ConfigFactory;
 
 class Application
@@ -68,7 +69,8 @@ class Application
                     continue;
                 }
                 $rewriter = new Rewriter($text);
-                $text = $rewriter->exec($deleteFlag);
+                $commentPattern = (new CommentPatternProvider($file))->get($deleteFlag);
+                $text = $rewriter->exec($commentPattern);
                 if ($rewriter->count() === 0) {
                     continue;
                 }
