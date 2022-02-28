@@ -20,5 +20,6 @@
         <p>dead</p>
         {{-- php-del end flag_a --}}
     </div>
+    <h3>line</h3>{{-- php-del line flag_a --}}
 </body>
 </html>
