@@ -1,0 +1,24 @@
+/* php-del start flag_a */
+.test {
+    display: none;
+}
+/* php-del end flag_a */
+/* php-del start flag_a */
+p {
+    font-size: 12px;
+}
+/* php-del ignore start */
+h1 {
+    font-size: 20px;
+    font-weight: bold;
+}
+/* php-del ignore end */
+h2 {
+    font-size: 16px;
+    font-weight: bold;
+}
+/* php-del end flag_a */
+h3 {
+    font-size: 14px;
+    font-weight: bold; /* php-del line flag_a */
+}
