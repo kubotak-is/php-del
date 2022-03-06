@@ -105,3 +105,4 @@ class DeleteClass {}
 ### Support file
 - .php
 - [.blade.php](/docs/blade.md)
+- [.css/.sass/.scss/.stylus](/docs/css_and_alt_css.md)

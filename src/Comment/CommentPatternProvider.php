@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace PHPDel\Comment;
 
+use PHPDel\Comment\Pattern\AltCssPattern;
 use PHPDel\Comment\Pattern\BladePhpPattern;
 use PHPDel\Comment\Pattern\CommentPattern;
+use PHPDel\Comment\Pattern\CssPattern;
 use PHPDel\Comment\Pattern\RawPhpPattern;
 use PHPDel\Exception\UndefinedExtensionException;
 
@@ -33,6 +35,12 @@ class CommentPatternProvider
                 return new RawPhpPattern($flag);
             case 'blade.php':
                 return new BladePhpPattern($flag);
+            case 'css':
+                return new CssPattern($flag);
+            case 'sass':
+            case 'scss':
+            case 'stylus':
+                return new AltCssPattern($flag);
         }
         throw new UndefinedExtensionException($this->ext() . ' is undefined extension.');
     }
