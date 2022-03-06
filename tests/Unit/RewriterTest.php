@@ -48,6 +48,19 @@ class RewriterTest extends \PHPUnit\Framework\TestCase
         self::assertEquals($expect, $result);
     }
 
+    public function testRewriteForAltCSS()
+    {
+        $file = __DIR__ . '/../actual/flag_a/flag-a.scss';
+        $text = file_get_contents($file);
+        $rewriter = new \PHPDel\Rewriter($text);
+        $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('flag_a');
+        $result = $rewriter->exec($pattern);
+
+        // Perfect matching
+        $expect = file_get_contents(__DIR__ . '/../expect/flag_a/flag-a.scss');
+        self::assertEquals($expect, $result);
+    }
+
     public function testRewriteException()
     {
         $this->expectException(\PHPDel\Exception\SandWitchCommentException::class);
@@ -72,6 +85,16 @@ class RewriterTest extends \PHPUnit\Framework\TestCase
     {
         $this->expectException(\PHPDel\Exception\SandWitchCommentException::class);
         $file = __DIR__ . '/../actual/error_flag/error-flag.css';
+        $text = file_get_contents($file);
+        $rewriter = new \PHPDel\Rewriter($text);
+        $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('error-flag');
+        $rewriter->exec($pattern);
+    }
+
+    public function testRewriteExceptionForAltCss()
+    {
+        $this->expectException(\PHPDel\Exception\SandWitchCommentException::class);
+        $file = __DIR__ . '/../actual/error_flag/error-flag.scss';
         $text = file_get_contents($file);
         $rewriter = new \PHPDel\Rewriter($text);
         $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('error-flag');
