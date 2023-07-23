@@ -14,8 +14,8 @@
         ]
     },
     "require": {
-        "php": ">=7.4",
-         "ext-mbstring": "*",
+        "php": ">=8.0",
+        "ext-mbstring": "*",
         "league/climate": "^3.7"
     },
     "bin": [

@@ -1,0 +1,21 @@
+version: '3'
+
+tasks:
+  install-php80:
+    cmds:
+      - docker compose run php80 composer install
+  test-php80:
+    cmds:
+      - docker compose run php80 composer test
+  install-php81:
+    cmds:
+      - docker compose run php81 composer install
+  test-php81:
+    cmds:
+      - docker compose run php81 composer test
+  install-php82:
+    cmds:
+      - docker compose run php82 composer install
+  test-php82:
+    cmds:
+      - docker compose run php82 composer test
