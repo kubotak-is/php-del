@@ -7,12 +7,12 @@ class CssPattern extends CommentPattern
 {
     public function startMatchPatternAtDelete(): string
     {
-        return "/\/\*(\n|\s)*+php-del\s+start\s+{$this->flag}+((|\*|\n|\s)*.\/|)/iu";
+        return "/\/\*(\n|\s)*+php-del\s+start\s+{$this->flag}((|\*|\n|\s)*.\/|)/iu";
     }
 
     public function endMatchPatternAtDelete(): string
     {
-        return "/\/\*(\n|\s)*+php-del\s+end\s+{$this->flag}+((|\*|\s)*.\/|)/iu";
+        return "/\/\*(\n|\s)*+php-del\s+end\s+{$this->flag}((|\*|\s)*.\/|)/iu";
     }
 
     public function startMatchPatternAtIgnore(): string
@@ -27,6 +27,6 @@ class CssPattern extends CommentPattern
 
     public function matchPatternAtLine(): string
     {
-        return "/(\/\/|\/\*)(| |　|\t)*php-del( |　|\t)+line( |　|\t)+{$this->flag}+(.*|\s|\n$)/iu";
+        return "/(\/\/|\/\*)(| |　|\t)*php-del( |　|\t)+line( |　|\t)+{$this->flag}(.*|\s|\n$)/iu";
     }
 }

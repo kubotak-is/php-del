@@ -1,14 +1,21 @@
 <?php
 declare(strict_types=1);
 
-class RewriterTest extends \PHPUnit\Framework\TestCase
+use PHPDel\Comment\CommentPatternProvider;
+use PHPDel\Exception\SandWitchCommentException;
+use PHPDel\Rewriter;
+use PHPUnit\Framework\TestCase;
+
+final class RewriterTest extends TestCase
 {
-    public function testRewrite()
+    public function testRewrite(): void
     {
         $file = __DIR__ . '/../actual/flag_a/FlagA.php';
         $text = file_get_contents($file);
-        $rewriter = new \PHPDel\Rewriter($text);
-        $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('flag_a');
+        self::assertIsString($text);
+
+        $rewriter = new Rewriter($text);
+        $pattern = (new CommentPatternProvider($file))->get('flag_a');
         $result = $rewriter->exec($pattern);
 
         self::assertDoesNotMatchRegularExpression('/php-del start flag_1$/', $result);
@@ -19,85 +26,114 @@ class RewriterTest extends \PHPUnit\Framework\TestCase
 
         // Perfect matching
         $expect = file_get_contents(__DIR__ . '/../expect/flag_a/FlagA.php');
-        self::assertEquals($expect, $result);
+        self::assertSame($expect, $result);
     }
 
-    public function testRewriteForBlade()
+    public function testRewriteForBlade(): void
     {
         $file = __DIR__ . '/../actual/flag_a/flag-a.blade.php';
         $text = file_get_contents($file);
-        $rewriter = new \PHPDel\Rewriter($text);
-        $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('flag_a');
+        self::assertIsString($text);
+
+        $rewriter = new Rewriter($text);
+        $pattern = (new CommentPatternProvider($file))->get('flag_a');
         $result = $rewriter->exec($pattern);
 
         // Perfect matching
         $expect = file_get_contents(__DIR__ . '/../expect/flag_a/flag-a.blade.php');
-        self::assertEquals($expect, $result);
+        self::assertSame($expect, $result);
     }
 
-    public function testRewriteForCSS()
+    public function testRewriteForCSS(): void
     {
         $file = __DIR__ . '/../actual/flag_a/flag-a.css';
         $text = file_get_contents($file);
-        $rewriter = new \PHPDel\Rewriter($text);
-        $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('flag_a');
+        self::assertIsString($text);
+
+        $rewriter = new Rewriter($text);
+        $pattern = (new CommentPatternProvider($file))->get('flag_a');
         $result = $rewriter->exec($pattern);
 
         // Perfect matching
         $expect = file_get_contents(__DIR__ . '/../expect/flag_a/flag-a.css');
-        self::assertEquals($expect, $result);
+        self::assertSame($expect, $result);
     }
 
-    public function testRewriteForAltCSS()
+    public function testRewriteForAltCSS(): void
     {
         $file = __DIR__ . '/../actual/flag_a/flag-a.scss';
         $text = file_get_contents($file);
-        $rewriter = new \PHPDel\Rewriter($text);
-        $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('flag_a');
+        self::assertIsString($text);
+
+        $rewriter = new Rewriter($text);
+        $pattern = (new CommentPatternProvider($file))->get('flag_a');
         $result = $rewriter->exec($pattern);
 
         // Perfect matching
         $expect = file_get_contents(__DIR__ . '/../expect/flag_a/flag-a.scss');
-        self::assertEquals($expect, $result);
+        self::assertSame($expect, $result);
     }
 
-    public function testRewriteException()
+    public function testFlagMustMatchCompletely(): void
     {
-        $this->expectException(\PHPDel\Exception\SandWitchCommentException::class);
+        $text = <<<'PHP'
+<?php
+/** php-del start release_candidate */
+$candidate = true;
+/** php-del end release_candidate */
+PHP;
+        $rewriter = new Rewriter($text);
+        $pattern = (new CommentPatternProvider('file.php'))->get('release');
+
+        self::assertSame($text, $rewriter->exec($pattern));
+        self::assertSame(0, $rewriter->count());
+    }
+
+    public function testRewriteException(): void
+    {
+        $this->expectException(SandWitchCommentException::class);
         $file = __DIR__ . '/../actual/error_flag/ErrorFlag.php';
         $text = file_get_contents($file);
-        $rewriter = new \PHPDel\Rewriter($text);
-        $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('error-flag');
+        self::assertIsString($text);
+
+        $rewriter = new Rewriter($text);
+        $pattern = (new CommentPatternProvider($file))->get('error-flag');
         $rewriter->exec($pattern);
     }
 
-    public function testRewriteExceptionForBlade()
+    public function testRewriteExceptionForBlade(): void
     {
-        $this->expectException(\PHPDel\Exception\SandWitchCommentException::class);
+        $this->expectException(SandWitchCommentException::class);
         $file = __DIR__ . '/../actual/error_flag/error-flag.blade.php';
         $text = file_get_contents($file);
-        $rewriter = new \PHPDel\Rewriter($text);
-        $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('error-flag');
+        self::assertIsString($text);
+
+        $rewriter = new Rewriter($text);
+        $pattern = (new CommentPatternProvider($file))->get('error-flag');
         $rewriter->exec($pattern);
     }
 
-    public function testRewriteExceptionForCss()
+    public function testRewriteExceptionForCss(): void
     {
-        $this->expectException(\PHPDel\Exception\SandWitchCommentException::class);
+        $this->expectException(SandWitchCommentException::class);
         $file = __DIR__ . '/../actual/error_flag/error-flag.css';
         $text = file_get_contents($file);
-        $rewriter = new \PHPDel\Rewriter($text);
-        $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('error-flag');
+        self::assertIsString($text);
+
+        $rewriter = new Rewriter($text);
+        $pattern = (new CommentPatternProvider($file))->get('error-flag');
         $rewriter->exec($pattern);
     }
 
-    public function testRewriteExceptionForAltCss()
+    public function testRewriteExceptionForAltCss(): void
     {
-        $this->expectException(\PHPDel\Exception\SandWitchCommentException::class);
+        $this->expectException(SandWitchCommentException::class);
         $file = __DIR__ . '/../actual/error_flag/error-flag.scss';
         $text = file_get_contents($file);
-        $rewriter = new \PHPDel\Rewriter($text);
-        $pattern = (new \PHPDel\Comment\CommentPatternProvider($file))->get('error-flag');
+        self::assertIsString($text);
+
+        $rewriter = new Rewriter($text);
+        $pattern = (new CommentPatternProvider($file))->get('error-flag');
         $rewriter->exec($pattern);
     }
 }

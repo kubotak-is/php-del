@@ -4,21 +4,34 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   phpunit:
-    runs-on: ubuntu-20.04
+    name: PHP ${{ matrix.php-version }}
+    runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
-        php-version: [ '8.0', '8.1', '8.2' ]
+        php-version: ['8.2', '8.3', '8.4', '8.5']
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Setup PHP ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
+          php-version: '${{ matrix.php-version }}'
+          extensions: mbstring
           tools: composer:v2
-      - name: Install Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-      - name: Execute Unit tests via PHPUnit
-        run: vendor/bin/phpunit
+          coverage: none
+
+      - name: Validate Composer configuration
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Execute unit tests
+        run: composer test

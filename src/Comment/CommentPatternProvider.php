@@ -10,38 +10,27 @@ use PHPDel\Comment\Pattern\CssPattern;
 use PHPDel\Comment\Pattern\RawPhpPattern;
 use PHPDel\Exception\UndefinedExtensionException;
 
-class CommentPatternProvider
+readonly class CommentPatternProvider
 {
-    private string $filePath;
-
-    public function __construct(string $filePath)
-    {
-        $this->filePath = $filePath;
-    }
+    public function __construct(private string $filePath) {}
 
     private function ext(): string
     {
-        $extArray = array_reverse(explode(".", $this->filePath));
-        if ($extArray[0] === 'php' && $extArray[1] === 'blade') {
+        if (str_ends_with($this->filePath, '.blade.php')) {
             return 'blade.php';
         }
-        return $extArray[0];
+
+        return pathinfo($this->filePath, PATHINFO_EXTENSION);
     }
 
     public function get(string $flag): CommentPattern
     {
-        switch ($this->ext()) {
-            case 'php':
-                return new RawPhpPattern($flag);
-            case 'blade.php':
-                return new BladePhpPattern($flag);
-            case 'css':
-                return new CssPattern($flag);
-            case 'sass':
-            case 'scss':
-            case 'stylus':
-                return new AltCssPattern($flag);
-        }
-        throw new UndefinedExtensionException($this->ext() . ' is undefined extension.');
+        return match ($this->ext()) {
+            'php' => new RawPhpPattern($flag),
+            'blade.php' => new BladePhpPattern($flag),
+            'css' => new CssPattern($flag),
+            'sass', 'scss', 'stylus' => new AltCssPattern($flag),
+            default => throw new UndefinedExtensionException($this->ext() . ' is undefined extension.'),
+        };
     }
 }

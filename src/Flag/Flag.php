@@ -5,13 +5,9 @@ namespace PHPDel\Flag;
 
 class Flag
 {
-    private string $flag;
     private int $count = 1;
 
-    public function __construct(string $flag)
-    {
-        $this->flag = $flag;
-    }
+    public function __construct(private readonly string $flag) {}
 
     public function get(): string
     {

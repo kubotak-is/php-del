@@ -7,12 +7,12 @@ class BladePhpPattern extends CommentPattern
 {
     public function startMatchPatternAtDelete(): string
     {
-        return "/{{--*(\*|\n|\s)*+php-del\s+start\s+{$this->flag}+((|\*|\n|\s)*.--}})/iu";
+        return "/{{--*(\*|\n|\s)*+php-del\s+start\s+{$this->flag}((|\*|\n|\s)*.--}})/iu";
     }
 
     public function endMatchPatternAtDelete(): string
     {
-        return "/{{--*(\*|\n|\s)*+php-del\s+end\s+{$this->flag}+((|\*|\n|\s)*.--}})/iu";
+        return "/{{--*(\*|\n|\s)*+php-del\s+end\s+{$this->flag}((|\*|\n|\s)*.--}})/iu";
     }
 
     public function startMatchPatternAtIgnore(): string
@@ -27,6 +27,6 @@ class BladePhpPattern extends CommentPattern
 
     public function matchPatternAtLine(): string
     {
-        return "/{{--*(\*|\n|\s)*+php-del\s+line\s+{$this->flag}+((|\*|\n|\s)*.--}})/iu";
+        return "/{{--*(\*|\n|\s)*+php-del\s+line\s+{$this->flag}((|\*|\n|\s)*.--}})/iu";
     }
 }

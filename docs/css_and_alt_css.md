@@ -1,15 +1,14 @@
-# comment pattern for CSS or AltCSS
+# CSS and Preprocessors
 
-## Configuration
-Create php-del.json in the root directory of the project
+PHP-DEL supports CSS, Sass, SCSS, and Stylus files.
 
 ```json
 {
   "dirs": [
-    "src"
+    "resources/css",
+    "resources/styles"
   ],
   "extensions": [
-    "php",
     "css",
     "sass",
     "scss",
@@ -18,78 +17,106 @@ Create php-del.json in the root directory of the project
 }
 ```
 
-## Usage
+CSS uses block comments. Sass, SCSS, and Stylus additionally support
+single-line `//` marker comments.
 
-for CSS
+## CSS
+
+### Block deletion
+
 ```css
-/* php-del start flag */
-.delete {
-    display: none;
+/* php-del start old-theme */
+.legacy-banner {
+    display: block;
 }
-/* php-del end flag */
+/* php-del end old-theme */
 ```
 
-for Alt CSS
-```scss
-// php-del start flag
-.delete {
-    display: none;
-}
-// php-del end flag
-```
+### Line deletion
 
-## Line delete
+The complete line containing the marker is removed:
 
-for CSS
 ```css
-.delete { 
-    display: none; /** php-del line flag */
-    color: red;
+.page {
+    color: red; /* php-del line old-theme */
+    background: white;
 }
 ```
 
-for Alt CSS
-```scss
-.delete { 
-    display: none; // php-del line flag
+### Preserving declarations
+
+```css
+/* php-del start old-theme */
+.page {
     color: red;
-}
-```
-
-## Codes not covered
-
-for CSS
-```html
-.delete {
-    /* php-del start flag */
-    display: none;
     /* php-del ignore start */
-    color: red;
+    background: white;
     /* php-del ignore end */
-    /* php-del end flag */
 }
+/* php-del end old-theme */
 ```
 
-for Alt CSS
-```scss
-.delete {
-    // php-del start flag
-    display: none;
-    // php-del ignore start
-    color: red;
-    // php-del ignore end
-    // php-del end flag
-}
-```
+### File deletion
 
-## File delete
-
-for CSS
 ```css
-/* php-del file flag */
+/* php-del file old-theme */
 ```
 
-for Alt CSS
+## Sass, SCSS, and Stylus
+
+### Block deletion
+
 ```scss
-// php-del file flag
+// php-del start old-theme
+.legacy-banner {
+    display: block;
+}
+// php-del end old-theme
 ```
+
+Block-style comments are also accepted:
+
+```scss
+/* php-del start old-theme */
+.legacy-banner {
+    display: block;
+}
+/* php-del end old-theme */
+```
+
+### Line deletion
+
+```scss
+.page {
+    color: red; // php-del line old-theme
+    background: white;
+}
+```
+
+### Preserving nested content
+
+```scss
+// php-del start old-theme
+.page {
+    color: red;
+    // php-del ignore start
+    background: white;
+    // php-del ignore end
+}
+// php-del end old-theme
+```
+
+### File deletion
+
+```scss
+// php-del file old-theme
+```
+
+## Pairing Rules
+
+Every `start <flag>` must have a corresponding `end <flag>`. An unmatched
+marker reports an error for that file. Keep paired comments in the same
+comment style where possible to make the source easy to audit.
+
+See [Markers and behavior](markers.md) for shared matching and whitespace
+rules.
