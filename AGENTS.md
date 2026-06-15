@@ -4,7 +4,7 @@
 
 PHP-DEL is a small PHP CLI tool that removes source code marked with
 `php-del` comments. It supports PHP, Blade templates, CSS, Sass, SCSS, and
-Stylus. The package requires PHP 8.0 or newer and `ext-mbstring`.
+Stylus. The package requires PHP 8.2 or newer and `ext-mbstring`.
 
 The CLI reads `php-del.json` from the current working directory, discovers
 flags in configured directories, asks the user to select one, then either
@@ -24,16 +24,21 @@ The repository also provides Docker/Task commands for the supported PHP
 versions:
 
 ```sh
-task install-php80
-task test-php80
-task install-php81
-task test-php81
+task install
+task test
 task install-php82
 task test-php82
+task install-php83
+task test-php83
+task install-php84
+task test-php84
+task install-php85
+task test-php85
+task test-all
 ```
 
-CI runs `vendor/bin/phpunit` on PHP 8.0, 8.1, and 8.2. When changing syntax,
-dependencies, or runtime behavior, preserve compatibility with all three.
+CI runs `composer test` on PHP 8.2, 8.3, 8.4, and 8.5. When changing syntax,
+dependencies, or runtime behavior, preserve compatibility with all four.
 
 ## Repository map
 
@@ -100,6 +105,8 @@ dependencies, or runtime behavior, preserve compatibility with all three.
 - Keep tests deterministic and non-interactive; test `Finder`, `Deleter`, and
   `Rewriter` directly rather than driving the CLImate prompt.
 - Do not edit `vendor/` or generated PHPUnit cache files.
+- Review `docs/php-support-migration.md` when changing the PHP compatibility
+  range or release process.
 
 ## Safety
 
@@ -110,6 +117,5 @@ tests for verification. If manual CLI verification is necessary, use
 `--dry-run` or work on disposable fixture copies and inspect `git diff`
 afterward.
 
-Note that the current implementation still unlinks files carrying a matching
-`file` marker even during `--dry-run`; do not use a file-deletion flag when
-performing dry-run verification.
+`--dry-run` must not write or unlink files. Keep both rewrite and whole-file
+deletion paths covered when changing dry-run behavior.

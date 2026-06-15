@@ -1,18 +1,40 @@
-version: '3'
 services:
-  php80:
-    build: docker/php80
+  php82:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        PHP_VERSION: "8.2"
     volumes:
       - .:/app
     working_dir: /app
 
-  php81:
-    build: docker/php81
+  php83:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        PHP_VERSION: "8.3"
     volumes:
       - .:/app
     working_dir: /app
-  php82:
-    build: docker/php82
+
+  php84:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        PHP_VERSION: "8.4"
+    volumes:
+      - .:/app
+    working_dir: /app
+
+  php85:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      args:
+        PHP_VERSION: "8.5"
     volumes:
       - .:/app
     working_dir: /app

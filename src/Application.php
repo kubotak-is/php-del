@@ -9,11 +9,8 @@ use PHPDel\Factory\ConfigFactory;
 
 class Application
 {
-    private CLImate $cli;
-
-    public function __construct(CLImate $cli)
+    public function __construct(private readonly CLImate $cli)
     {
-        $this->cli = $cli;
         $this->initCli();
     }
 
@@ -55,27 +52,36 @@ class Application
         $finder = new Finder($config);
         $finder->findFlag();
         $flagList = $finder->getFlagList();
+
         if ($flagList->empty()) {
             $this->cli->backgroundYellow()->out("Nothing flag.");
             return;
         }
-        $input = $this->cli->radio('Please choice me one of the following flag:', (array)$finder->getFlagList());
+
+        $input = $this->cli->radio('Please choice me one of the following flag:', (array) $flagList);
         $deleteFlag = $input->prompt();
+
         foreach ($finder->getTargetFileList() as $file) {
             try {
-                $text = file_get_contents($file);
-                if ($this->deleteFileWhenHasFlag($file, $text, $deleteFlag)) {
+                $text = $this->readFile($file);
+                $deleter = new Deleter($text);
+
+                if ($deleter->delete($file, $deleteFlag, $this->isDryRun())) {
                     $this->cli->backgroundGreen($file . "(delete)");
                     continue;
                 }
+
                 $rewriter = new Rewriter($text);
                 $commentPattern = (new CommentPatternProvider($file))->get($deleteFlag);
                 $text = $rewriter->exec($commentPattern);
+
                 if ($rewriter->count() === 0) {
                     continue;
                 }
+
                 if (!$this->isDryRun()) {
                     $result = file_put_contents($file, $text);
+
                     if ($result === false) {
                         throw new \RuntimeException("File Put Contents Error.");
                     }
@@ -89,16 +95,14 @@ class Application
         $this->cli->out("End php-del");
     }
 
-    private function deleteFileWhenHasFlag(string $file, string $text, string $deleteFlag): bool
+    private function readFile(string $file): string
     {
-        $deleter = new Deleter($text);
-        if (!$deleter->isDelete($deleteFlag)) {
-            return false;
+        $text = file_get_contents($file);
+
+        if ($text === false) {
+            throw new \RuntimeException("File Get Contents Error.");
         }
-        $result = unlink($file);
-        if ($result) {
-            return true;
-        }
-        throw new \RuntimeException("Unlink Failed.");
+
+        return $text;
     }
 }

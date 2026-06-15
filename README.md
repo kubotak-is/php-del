@@ -6,6 +6,11 @@
 
 Tool to remove code based on specific comments.
 
+## Supported PHP versions
+
+PHP-DEL supports PHP versions that are currently supported by the PHP
+project. The current compatibility range is PHP 8.2 through PHP 8.5.
+
 ## Install
 ```
 composer require --dev kubotak-is/php-del
@@ -106,3 +111,22 @@ class DeleteClass {}
 - .php
 - [.blade.php](/docs/blade.md)
 - [.css/.sass/.scss/.stylus](/docs/css_and_alt_css.md)
+
+## Development
+
+Install dependencies and run the test suite on the minimum supported PHP
+version:
+
+```sh
+task install
+task test
+```
+
+Run the test suite on every supported PHP version:
+
+```sh
+task test-all
+```
+
+See [the PHP support migration guide](/docs/php-support-migration.md) for the
+support policy and upgrade procedure.

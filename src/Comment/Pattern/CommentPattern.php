@@ -9,7 +9,7 @@ abstract class CommentPattern
 
     public function __construct(string $flag)
     {
-        $this->flag = $flag;
+        $this->flag = preg_quote($flag, '/') . '(?=\s|\*\/|--}}|$)';
     }
 
     abstract public function startMatchPatternAtDelete(): string;

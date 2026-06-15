@@ -8,14 +8,12 @@ use PHPDel\Flag\{Flag,FlagList,FlagManager};
 
 class Finder
 {
-    private Config $config;
     private AllFileList $allFileList;
     private TargetFileList $targetFileList;
     private FlagList $flagList;
 
-    public function __construct(Config $config)
+    public function __construct(private readonly Config $config)
     {
-        $this->config = $config;
         $this->setAllFileList();
     }
 
@@ -23,14 +21,27 @@ class Finder
     {
         $flagManager = new FlagManager();
         $targetFiles = [];
+
         foreach ($this->allFileList as $file) {
             $text = file_get_contents($file);
+
+            if ($text === false) {
+                throw new \RuntimeException("Unable to read file: {$file}");
+            }
+
             $matches = [];
-            $result = preg_match_all("/php-del+( |　|\t)+(start|line|file)( |　|\t)+(?<flag>[a-z0-9_\-=]*)/iu", $text, $matches);
+            $result = preg_match_all(
+                "/php-del+( |　|\t)+(start|line|file)( |　|\t)+(?<flag>[a-z0-9_\-=]+)/iu",
+                $text,
+                $matches
+            );
+
             if ($result === false || $result === 0) {
                 continue;
             }
+
             $targetFiles[] = $file;
+
             foreach ($matches['flag'] as $flag) {
                 $flagManager->add(new Flag($flag));
             }
@@ -57,9 +68,11 @@ class Finder
     private function getAllFileList(array $dirs): AllFileList
     {
         $files = [];
+
         foreach ($dirs as $dir) {
             $files = [...$this->getFiles($dir, $this->config), ...$files];
         }
+
         return new AllFileList($files);
     }
 
@@ -67,22 +80,28 @@ class Finder
     {
         $files = [];
         $this->rglob(getcwd(). '/' . $dir, $config->getExtensions(), $files);
+
         return $files;
     }
 
     private function rglob(string $dir, array $exts, array &$results = []): void
     {
         $ls = glob($dir);
-        if (is_array($ls)) {
-            foreach ($ls as $item) {
-                if (is_dir($item)) {
-                    $this->rglob($item . '/*', $exts, $results);
-                }
-                if (is_file($item)) {
-                    $ext = substr($item, strrpos($item, '.') + 1);
-                    if (in_array($ext, $exts, true)) {
-                        $results[] = $item;
-                    }
+
+        if ($ls === false) {
+            return;
+        }
+
+        foreach ($ls as $item) {
+            if (is_dir($item)) {
+                $this->rglob($item . '/*', $exts, $results);
+            }
+
+            if (is_file($item)) {
+                $ext = pathinfo($item, PATHINFO_EXTENSION);
+
+                if (in_array($ext, $exts, true)) {
+                    $results[] = $item;
                 }
             }
         }
