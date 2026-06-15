@@ -166,12 +166,31 @@ For exact matching rules and format-specific examples, see
 --flag=<name>  Delete the given flag without the interactive prompt
 --list-flags   List discovered flags with their occurrence counts, then exit
 --dry-run      Discover and report changes without writing or deleting files
+--validate     Validate all php-del markers without modifying files
 --help         Print the command usage
 ```
 
 When `--flag` is omitted, PHP-DEL prompts for a flag interactively. Passing
-`--flag` (or `--list-flags`) runs without any prompt, which makes it safe for
-CI pipelines and AI agents that have no interactive terminal.
+`--flag`, `--list-flags`, and `--validate` run without any prompt, which makes
+them safe for CI pipelines and AI agents that have no interactive terminal.
+
+## Validation
+
+Validate every php-del marker in the configured files without selecting a
+flag or modifying any file:
+
+```sh
+vendor/bin/php-del --validate
+```
+
+Validation reports malformed flags, unknown marker commands, unmatched or
+crossing blocks, and invalid `ignore` placement with file, line, column, and
+diagnostic ID. It checks all configured files and flags, unlike `--dry-run`,
+which previews one selected flag.
+
+Validation exits with `0` when all markers are valid, `1` when marker errors
+are found, and `2` when validation cannot complete because of configuration,
+option, file access, or unsupported-extension errors.
 
 ## Non-interactive Mode
 
@@ -233,12 +252,13 @@ The repository includes Docker environments for every supported PHP version:
 
 ```sh
 task install
+task analyse
 task test
 task test-all
 ```
 
 See [Development](docs/development.md) for individual PHP-version tasks,
-dependency updates, fixtures, and validation commands.
+static analysis, dependency updates, fixtures, and validation commands.
 
 ## License
 

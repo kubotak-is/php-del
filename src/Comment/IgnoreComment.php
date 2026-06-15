@@ -23,6 +23,11 @@ class IgnoreComment extends SandWitchComment
     private function endPositionWithCode(): int
     {
         $erasedEnd = mb_strstr($this->targetCode(), $this->endPhrase, true);
+
+        if ($erasedEnd === false) {
+            throw new \RuntimeException('Unable to locate ignore end comment.');
+        }
+
         $eol = mb_strrpos($erasedEnd, PHP_EOL);
         return $eol === false ? mb_strlen($erasedEnd) : $eol;
     }

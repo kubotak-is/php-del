@@ -48,6 +48,25 @@ task test-php85
 
 CI runs the same suite on PHP 8.2, 8.3, 8.4, and 8.5.
 
+## Static Analysis
+
+Run PHPStan at the maximum rule level using the minimum supported PHP
+version:
+
+```sh
+task analyse
+```
+
+Equivalent command:
+
+```sh
+docker compose run --rm php82 composer analyse
+```
+
+PHPStan analyzes `src` and the `php-del` entry point. The configured PHP
+version is 8.2 so new code remains compatible with the minimum supported
+runtime.
+
 ## Composer Validation
 
 ```sh
@@ -100,12 +119,18 @@ Prefer unit tests. For manual verification:
 vendor/bin/php-del --dry-run
 ```
 
+The checked-in fixtures intentionally include malformed marker pairs, so
+running `vendor/bin/php-del --validate` against the repository's own
+`php-del.json` is expected to fail. Exercise validation through its unit and
+E2E tests or with a disposable configuration containing only valid fixtures.
+
 If an applied run is necessary, use disposable fixture copies and verify
 `git status` immediately afterward.
 
 ## Final Checks
 
 ```sh
+task analyse
 task test-all
 docker compose run --rm php82 composer validate --strict
 git diff --check

@@ -1,4 +1,4 @@
-name: Unit Test
+name: Quality Checks
 
 on:
   push:
@@ -8,6 +8,27 @@ permissions:
   contents: read
 
 jobs:
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring
+          tools: composer:v2
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Execute static analysis
+        run: composer analyse
+
   phpunit:
     name: PHP ${{ matrix.php-version }}
     runs-on: ubuntu-24.04
@@ -17,7 +38,7 @@ jobs:
         php-version: ['8.2', '8.3', '8.4', '8.5']
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP ${{ matrix.php-version }}
         uses: shivammathur/setup-php@v2

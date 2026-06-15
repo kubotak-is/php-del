@@ -51,7 +51,7 @@ abstract class SandWitchComment extends Comment
         if (!$this->foundStart && $this->foundEnd) {
             throw new SandWitchCommentException("There is an end comment, but no start.");
         }
-        $this->found = $this->foundStart && $this->foundEnd;
+        $this->found = $this->foundStart;
     }
 
     protected function setStartPosition(): void
@@ -63,12 +63,24 @@ abstract class SandWitchComment extends Comment
         $fromLettersUpToPhpEolToComments = mb_substr($this->target, $charUpToPhpEolPosition, mb_strlen($targetBefore) - $charUpToPhpEolPosition);
         // (B)に改行および空白文字以外が存在するかチェック
         $charOtherThanPhpEol = mb_strlen(trim($fromLettersUpToPhpEolToComments, " \t\n\r"));
-        $this->startPosition = $charOtherThanPhpEol === 0 ? $charUpToPhpEolPosition : mb_strpos($this->target, $this->startPhrase);
+        $startPosition = mb_strpos($this->target, $this->startPhrase);
+
+        if ($startPosition === false) {
+            throw new \RuntimeException('Unable to locate start comment.');
+        }
+
+        $this->startPosition = $charOtherThanPhpEol === 0 ? $charUpToPhpEolPosition : $startPosition;
     }
 
     protected function setEndPosition(): void
     {
-        $this->endPosition = mb_strpos($this->target, $this->endPhrase) + mb_strlen($this->endPhrase);
+        $endPosition = mb_strpos($this->target, $this->endPhrase);
+
+        if ($endPosition === false) {
+            throw new \RuntimeException('Unable to locate end comment.');
+        }
+
+        $this->endPosition = $endPosition + mb_strlen($this->endPhrase);
     }
 
     abstract protected function matchStartPattern(): string;

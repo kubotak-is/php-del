@@ -5,6 +5,9 @@ namespace PHPDel\File;
 
 use ArrayIterator;
 
+/**
+ * @extends ArrayIterator<int, string>
+ */
 class FileList extends ArrayIterator
 {
 }

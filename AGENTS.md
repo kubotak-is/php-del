@@ -15,12 +15,14 @@ carrying a matching `file` marker.
 
 ```sh
 composer install
+composer analyse
 composer test
 vendor/bin/phpunit
 ./php-del --help
 ./php-del --dry-run
 ./php-del --list-flags
 ./php-del --flag=<name>
+./php-del --validate
 ```
 
 The repository also provides Docker/Task commands for the supported PHP
@@ -28,6 +30,7 @@ versions:
 
 ```sh
 task install
+task analyse
 task test
 task install-php82
 task test-php82
@@ -40,8 +43,9 @@ task test-php85
 task test-all
 ```
 
-CI runs `composer test` on PHP 8.2, 8.3, 8.4, and 8.5. When changing syntax,
-dependencies, or runtime behavior, preserve compatibility with all four.
+CI runs `composer analyse` on PHP 8.2 and `composer test` on PHP 8.2, 8.3,
+8.4, and 8.5. When changing syntax, dependencies, or runtime behavior,
+preserve compatibility with all four.
 
 ## Repository map
 
@@ -52,6 +56,9 @@ dependencies, or runtime behavior, preserve compatibility with all four.
   `<cwd>/php-del.json`.
 - `src/Finder.php`: recursively find configured extensions and aggregate
   `start`, `line`, and `file` flags.
+- `src/FileFinder.php`: enumerate configured files relative to `getcwd()`.
+- `src/Validation/`: scan comments and validate all marker structures without
+  modifying files.
 - `src/Rewriter.php`: repeatedly remove matching blocks and lines while
   preserving content enclosed by `ignore` markers.
 - `src/Deleter.php`: detect whole-file deletion markers.
@@ -82,6 +89,10 @@ dependencies, or runtime behavior, preserve compatibility with all four.
 6. Paired `ignore start`/`ignore end` content inside a deleted block is kept,
    but the ignore marker comments themselves are removed.
 
+With `--validate`, `Application` skips flag discovery and deletion, scans all
+configured files, prints position-based diagnostics, and returns `0` for
+success, `1` for marker errors, or `2` when validation cannot complete.
+
 ## Behavioral constraints
 
 - Supported markers are `start <flag>`, `end <flag>`, `line <flag>`,
@@ -105,12 +116,16 @@ dependencies, or runtime behavior, preserve compatibility with all four.
   exits `0`. Decorative TTY output (`blink()`) is suppressed in these modes.
 - `main(): int` returns the exit code and `php-del` propagates it via
   `exit()`. Only flag resolution affects the code (`0` success, `1` unknown
-  flag); per-file failures are reported but keep the overall code `0`.
+  flag) during normal deletion; per-file failures are reported but keep the
+  overall code `0`.
+- `--validate` must remain non-interactive and non-destructive. It cannot be
+  combined with `--flag`, `--list-flags`, or `--dry-run`.
 
 ## Change guidance
 
 - Keep `declare(strict_types=1);`, the `PHPDel\` PSR-4 namespace, and the
   existing small-class organization.
+- Keep `composer analyse` passing at PHPStan level max and PHP 8.2.
 - Prefer extending `CommentPatternProvider` and adding a dedicated
   `CommentPattern` implementation when supporting a new file syntax.
 - Treat regular-expression changes as cross-format changes. Check raw PHP,
@@ -120,8 +135,8 @@ dependencies, or runtime behavior, preserve compatibility with all four.
 - Keep tests deterministic and non-interactive; test `Finder`, `Deleter`, and
   `Rewriter` directly rather than driving the CLImate prompt. End-to-end CLI
   behavior may be tested by running `php-del` as a subprocess with `--flag` /
-  `--list-flags` (see `tests/Unit/ApplicationE2ETest.php`), since those paths
-  never reach the prompt.
+  `--list-flags` / `--validate` (see `tests/Unit/ApplicationE2ETest.php`),
+  since those paths never reach the prompt.
 - Do not edit `vendor/` or generated PHPUnit cache files.
 - Review `docs/releasing.md` when changing the PHP compatibility range or
   release process.
@@ -137,3 +152,9 @@ afterward.
 
 `--dry-run` must not write or unlink files. Keep both rewrite and whole-file
 deletion paths covered when changing dry-run behavior.
+
+`--validate` must inspect all configured flags and must not write or unlink
+files under any outcome.
+
+The checked-in configuration includes malformed exception fixtures, so a
+repository-root `./php-del --validate` is expected to return `1`.

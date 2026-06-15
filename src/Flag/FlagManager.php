@@ -5,6 +5,7 @@ namespace PHPDel\Flag;
 
 class FlagManager
 {
+    /** @var array<string, Flag> */
     private array $hasMap = [];
 
     public function add(Flag $flag): void

@@ -9,6 +9,9 @@
     ],
     "license": ["MIT"],
     "scripts": {
+        "analyse": [
+            "phpstan analyse"
+        ],
         "test": [
             "phpunit"
         ]
@@ -34,6 +37,7 @@
         ]
     },
     "require-dev": {
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.5"
     },
     "config": {

@@ -79,6 +79,25 @@ Dry run performs discovery and rewrite calculation but does not:
 
 The output still labels matching files as rewrite or deletion targets.
 
+## Validation
+
+```sh
+vendor/bin/php-del --validate
+```
+
+Validation scans all configured files and flags without prompting, rewriting,
+or deleting. Diagnostics use this stable format:
+
+```text
+src/Legacy.php:18:5 [PDEL001] start "legacy" has no matching end
+```
+
+The command reports all readable-file errors before exiting. It detects
+invalid marker commands and flags, unmatched or crossing deletion blocks, and
+invalid `ignore` pairs or placement.
+
+Do not combine `--validate` with `--flag`, `--list-flags`, or `--dry-run`.
+
 ## Help
 
 ```sh
@@ -106,6 +125,14 @@ target files.
 | --- | --- |
 | `0` | Deletion completed, flags were listed, or no matching flag was found. |
 | `1` | A flag passed with `--flag` does not exist. |
+
+Validation uses:
+
+| Code | Meaning |
+| --- | --- |
+| `0` | All php-del markers are valid. |
+| `1` | One or more marker errors were found. |
+| `2` | Validation could not complete. |
 
 Per-file errors are reported and skipped; they do not change the exit code.
 Unhandled runtime errors (for example, a missing or invalid `php-del.json`)

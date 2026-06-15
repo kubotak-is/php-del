@@ -5,6 +5,9 @@ namespace PHPDel\Flag;
 
 use ArrayIterator;
 
+/**
+ * @extends ArrayIterator<string, Flag>
+ */
 class FlagList extends ArrayIterator
 {
     public function empty(): bool

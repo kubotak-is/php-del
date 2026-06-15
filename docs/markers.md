@@ -119,6 +119,28 @@ php-del start feature-a
 Whitespace and line endings outside matched regions are otherwise preserved.
 PHP-DEL does not run a formatter after rewriting.
 
+## Validation
+
+Run the non-destructive validator before deletion or in CI:
+
+```sh
+vendor/bin/php-del --validate
+```
+
+It checks every configured file and flag. Validation rejects unmatched
+`start` / `end` and `ignore` pairs, nested blocks using the same flag,
+crossing blocks, `ignore` markers outside a deletion block, empty or invalid
+flags, and unknown php-del commands.
+
+Different flags may be nested only when they close in reverse order:
+
+```text
+php-del start outer
+php-del start inner
+php-del end inner
+php-del end outer
+```
+
 ## Format-Specific Syntax
 
 - [Blade templates](blade.md)
