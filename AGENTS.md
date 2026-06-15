@@ -15,6 +15,7 @@ carrying a matching `file` marker.
 
 ```sh
 composer install
+composer analyse
 composer test
 vendor/bin/phpunit
 ./php-del --help
@@ -29,6 +30,7 @@ versions:
 
 ```sh
 task install
+task analyse
 task test
 task install-php82
 task test-php82
@@ -41,8 +43,9 @@ task test-php85
 task test-all
 ```
 
-CI runs `composer test` on PHP 8.2, 8.3, 8.4, and 8.5. When changing syntax,
-dependencies, or runtime behavior, preserve compatibility with all four.
+CI runs `composer analyse` on PHP 8.2 and `composer test` on PHP 8.2, 8.3,
+8.4, and 8.5. When changing syntax, dependencies, or runtime behavior,
+preserve compatibility with all four.
 
 ## Repository map
 
@@ -122,6 +125,7 @@ success, `1` for marker errors, or `2` when validation cannot complete.
 
 - Keep `declare(strict_types=1);`, the `PHPDel\` PSR-4 namespace, and the
   existing small-class organization.
+- Keep `composer analyse` passing at PHPStan level max and PHP 8.2.
 - Prefer extending `CommentPatternProvider` and adding a dedicated
   `CommentPattern` implementation when supporting a new file syntax.
 - Treat regular-expression changes as cross-format changes. Check raw PHP,

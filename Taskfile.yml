@@ -11,6 +11,11 @@ tasks:
     cmds:
       - docker compose run --rm php82 composer test
 
+  analyse:
+    desc: Run PHPStan with the minimum supported PHP version
+    cmds:
+      - docker compose run --rm php82 composer analyse
+
   install-php82:
     cmds:
       - docker compose run --rm php82 composer install

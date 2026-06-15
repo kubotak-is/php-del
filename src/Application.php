@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace PHPDel;
 
 use League\CLImate\CLImate;
+use League\CLImate\TerminalObject\Dynamic\Radio;
 use PHPDel\Comment\CommentPatternProvider;
 use PHPDel\Factory\ConfigFactory;
 use PHPDel\Flag\FlagList;
@@ -71,11 +72,11 @@ class Application
     {
         $flag = $this->cli->arguments->get('flag');
 
-        if ($flag === null || $flag === '') {
+        if (!is_string($flag) || $flag === '') {
             return null;
         }
 
-        return (string) $flag;
+        return $flag;
     }
 
     private function hasSelectedFlagArgument(): bool
@@ -222,6 +223,10 @@ class Application
         }
 
         $input = $this->cli->radio('Please choice me one of the following flag:', (array) $flagList);
+
+        if (!$input instanceof Radio) {
+            throw new \RuntimeException('Unable to create flag selection prompt.');
+        }
 
         return $input->prompt();
     }

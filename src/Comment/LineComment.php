@@ -34,7 +34,13 @@ class LineComment extends Comment
 
     private function setStartPosition(): void
     {
-        $this->startPosition = (int) mb_strrpos(mb_strstr($this->target, $this->phrase, true), PHP_EOL);
+        $targetBefore = mb_strstr($this->target, $this->phrase, true);
+
+        if ($targetBefore === false) {
+            throw new \RuntimeException('Unable to locate line comment.');
+        }
+
+        $this->startPosition = (int) mb_strrpos($targetBefore, PHP_EOL);
     }
 
     private function setEndPosition(): void

@@ -53,8 +53,10 @@ class Validator
                     continue;
                 }
 
-                if ($index !== array_key_last($blocks)) {
-                    $top = $blocks[array_key_last($blocks)];
+                $lastIndex = array_key_last($blocks);
+
+                if ($lastIndex !== null && $index !== $lastIndex) {
+                    $top = $blocks[$lastIndex];
                     $diagnostics[] = $this->diagnostic(
                         $path,
                         $marker,

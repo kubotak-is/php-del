@@ -17,7 +17,16 @@ class ConfigFactory
         }
 
         $json = mb_convert_encoding($json, 'UTF8', 'ASCII,JIS,UTF-8,EUC-JP,SJIS-WIN');
+
+        if ($json === false) {
+            throw new \RuntimeException("Unable to convert configuration encoding: {$path}");
+        }
+
         $arr = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+
+        if (!is_array($arr)) {
+            throw new \InvalidArgumentException('The configuration root must be an object.');
+        }
 
         return new Config($arr);
     }

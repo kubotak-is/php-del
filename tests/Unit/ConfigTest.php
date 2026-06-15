@@ -27,4 +27,18 @@ final class ConfigTest extends TestCase
 
         new Config(['dirs' => ['src'], 'extensions' => 'php']);
     }
+
+    public function testDirsMustContainOnlyStrings(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new Config(['dirs' => ['src', 1]]);
+    }
+
+    public function testExtensionsMustContainOnlyStrings(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new Config(['dirs' => ['src'], 'extensions' => ['php', false]]);
+    }
 }

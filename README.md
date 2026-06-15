@@ -252,12 +252,13 @@ The repository includes Docker environments for every supported PHP version:
 
 ```sh
 task install
+task analyse
 task test
 task test-all
 ```
 
 See [Development](docs/development.md) for individual PHP-version tasks,
-dependency updates, fixtures, and validation commands.
+static analysis, dependency updates, fixtures, and validation commands.
 
 ## License
 

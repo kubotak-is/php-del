@@ -24,6 +24,10 @@ readonly class FileFinder
         return new AllFileList($files);
     }
 
+    /**
+     * @param list<string> $extensions
+     * @param list<string> $results
+     */
     private function rglob(string $dir, array $extensions, array &$results): void
     {
         $items = glob($dir);

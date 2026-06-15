@@ -28,6 +28,7 @@ released as `2.0.0`.
 4. Run all supported PHP versions:
 
    ```sh
+   task analyse
    task test-all
    ```
 
