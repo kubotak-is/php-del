@@ -5,10 +5,11 @@
 [![PHP Version Require](https://poser.pugx.org/kubotak-is/php-del/require/php)](https://packagist.org/packages/kubotak-is/php-del)
 [![License](https://poser.pugx.org/kubotak-is/php-del/license)](https://packagist.org/packages/kubotak-is/php-del)
 
-PHP-DEL is an interactive CLI tool that permanently removes source code
-marked with `php-del` comments. It is useful for maintaining optional,
-environment-specific, or temporary code paths and removing one selected
-feature before a release or deployment.
+PHP-DEL is a CLI tool that permanently removes source code marked with
+`php-del` comments. It runs interactively by default and offers a
+non-interactive mode (`--flag`) for CI and AI-agent automation. It is useful
+for maintaining optional, environment-specific, or temporary code paths and
+removing one selected feature before a release or deployment.
 
 ```php
 public function example(): void
@@ -91,7 +92,8 @@ examples.
    ```
 
 The command scans all configured files, counts each discovered flag, and
-prompts for one flag. It then processes every file containing that flag.
+prompts for one flag. It then processes every file containing that flag. To
+skip the prompt, pass `--flag=<name>` (see [Non-interactive Mode](#non-interactive-mode)).
 
 ## Marker Reference
 
@@ -161,12 +163,45 @@ For exact matching rules and format-specific examples, see
 ## CLI Options
 
 ```text
---dry-run  Discover and report changes without writing or deleting files
---help     Print the command usage
+--flag=<name>  Delete the given flag without the interactive prompt
+--list-flags   List discovered flags with their occurrence counts, then exit
+--dry-run      Discover and report changes without writing or deleting files
+--help         Print the command usage
 ```
 
-PHP-DEL currently selects flags interactively; there is no positional or
-non-interactive flag argument.
+When `--flag` is omitted, PHP-DEL prompts for a flag interactively. Passing
+`--flag` (or `--list-flags`) runs without any prompt, which makes it safe for
+CI pipelines and AI agents that have no interactive terminal.
+
+## Non-interactive Mode
+
+Specify the flag directly to skip the interactive prompt:
+
+```sh
+# List available flags first (machine-readable name and count)
+vendor/bin/php-del --list-flags
+
+# Delete a flag without prompting
+vendor/bin/php-del --flag=feature-a
+
+# Preview without writing or deleting
+vendor/bin/php-del --flag=feature-a --dry-run
+```
+
+If the given flag does not exist in the discovered list, PHP-DEL prints an
+error and exits with status `1` without modifying any file.
+
+### Exit Codes
+
+| Code | Meaning |
+| --- | --- |
+| `0` | Deletion completed, flags were listed, or no matching flag was found. |
+| `1` | A flag passed with `--flag` does not exist. |
+
+Per-file processing errors are reported and skipped; they do not change the
+overall exit code. Unhandled runtime errors (for example, a missing or invalid
+`php-del.json`) terminate the process with a non-zero status set by the PHP
+runtime.
 
 ## Safety
 

@@ -13,6 +13,9 @@ PHP-DEL overwrites and deletes files in place. Use this workflow:
 7. Inspect `git diff` and run the project's tests.
 8. Commit the generated source changes.
 
+In a non-interactive environment, replace the flag selection in steps 4 and 6
+with `--flag=<name>` (see [Non-interactive Selection](#non-interactive-selection)).
+
 ## Interactive Selection
 
 ```sh
@@ -31,8 +34,37 @@ Please choice me one of the following flag:
 The number is the count of discovered `start`, `line`, and `file` markers,
 not the number of files or final rewrite operations.
 
-The command currently requires an interactive terminal. A flag cannot be
-passed as a command-line argument.
+When no flag argument is given, the command requires an interactive terminal.
+Pass `--flag=<name>` to select a flag without the prompt (see
+[Non-interactive Selection](#non-interactive-selection)).
+
+## Non-interactive Selection
+
+Pass the target flag directly to skip the prompt. This is the recommended mode
+for CI pipelines and AI agents, where no interactive terminal is available:
+
+```sh
+vendor/bin/php-del --flag=legacy-api
+```
+
+If the given flag does not exist in the discovered list, the command prints an
+error and exits with status `1` without modifying any file.
+
+## Listing Flags
+
+List every discovered flag and its occurrence count, then exit without
+deleting anything:
+
+```sh
+vendor/bin/php-del --list-flags
+```
+
+```text
+flag-a (4)
+legacy-api (2)
+```
+
+Use this to discover which flags are available before choosing one to delete.
 
 ## Dry Run
 
@@ -67,6 +99,17 @@ Successful target files are displayed with one of these suffixes:
 
 Errors are reported per file and processing continues with the remaining
 target files.
+
+## Exit Codes
+
+| Code | Meaning |
+| --- | --- |
+| `0` | Deletion completed, flags were listed, or no matching flag was found. |
+| `1` | A flag passed with `--flag` does not exist. |
+
+Per-file errors are reported and skipped; they do not change the exit code.
+Unhandled runtime errors (for example, a missing or invalid `php-del.json`)
+terminate the process with a non-zero status set by the PHP runtime.
 
 ## Troubleshooting
 

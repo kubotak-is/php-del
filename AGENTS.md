@@ -7,8 +7,9 @@ PHP-DEL is a small PHP CLI tool that removes source code marked with
 Stylus. The package requires PHP 8.2 or newer and `ext-mbstring`.
 
 The CLI reads `php-del.json` from the current working directory, discovers
-flags in configured directories, asks the user to select one, then either
-rewrites matching files or deletes files carrying a matching `file` marker.
+flags in configured directories, selects one (interactively, or via `--flag`
+for non-interactive use), then either rewrites matching files or deletes files
+carrying a matching `file` marker.
 
 ## Common commands
 
@@ -18,6 +19,8 @@ composer test
 vendor/bin/phpunit
 ./php-del --help
 ./php-del --dry-run
+./php-del --list-flags
+./php-del --flag=<name>
 ```
 
 The repository also provides Docker/Task commands for the supported PHP
@@ -71,7 +74,8 @@ dependencies, or runtime behavior, preserve compatibility with all four.
 1. `Application` loads configuration through `ConfigFactory`.
 2. `Finder` scans configured directories and builds a unique, counted flag
    list plus the files containing relevant markers.
-3. CLImate prompts for one flag.
+3. The flag is resolved: `--flag` selects it non-interactively, `--list-flags`
+   prints the list and exits, otherwise CLImate prompts for one flag.
 4. Each target file is first checked by `Deleter` for a `file` marker.
 5. Otherwise, `CommentPatternProvider` chooses a pattern from the file name
    and `Rewriter` removes matching blocks and single lines.
@@ -96,6 +100,12 @@ dependencies, or runtime behavior, preserve compatibility with all four.
 - `php-del.json` defaults `extensions` to `["php"]`, but `dirs` is required.
 - Unknown rewrite extensions must continue to raise
   `UndefinedExtensionException`.
+- `--flag <name>` skips the prompt and is implicitly non-interactive; an
+  unknown flag must exit `1`. `--list-flags` prints names and counts, then
+  exits `0`. Decorative TTY output (`blink()`) is suppressed in these modes.
+- `main(): int` returns the exit code and `php-del` propagates it via
+  `exit()`. Only flag resolution affects the code (`0` success, `1` unknown
+  flag); per-file failures are reported but keep the overall code `0`.
 
 ## Change guidance
 
@@ -108,7 +118,10 @@ dependencies, or runtime behavior, preserve compatibility with all four.
 - Add or update both `tests/actual` and `tests/expect` fixtures for rewrite
   behavior. Add exception fixtures when validating malformed pairs.
 - Keep tests deterministic and non-interactive; test `Finder`, `Deleter`, and
-  `Rewriter` directly rather than driving the CLImate prompt.
+  `Rewriter` directly rather than driving the CLImate prompt. End-to-end CLI
+  behavior may be tested by running `php-del` as a subprocess with `--flag` /
+  `--list-flags` (see `tests/Unit/ApplicationE2ETest.php`), since those paths
+  never reach the prompt.
 - Do not edit `vendor/` or generated PHPUnit cache files.
 - Review `docs/releasing.md` when changing the PHP compatibility range or
   release process.
