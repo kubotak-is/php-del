@@ -11,4 +11,9 @@ class FlagList extends ArrayIterator
     {
         return $this->count() === 0;
     }
+
+    public function has(string $flag): bool
+    {
+        return $this->offsetExists($flag);
+    }
 }

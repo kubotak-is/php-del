@@ -6,6 +6,7 @@ namespace PHPDel;
 use League\CLImate\CLImate;
 use PHPDel\Comment\CommentPatternProvider;
 use PHPDel\Factory\ConfigFactory;
+use PHPDel\Flag\FlagList;
 
 class Application
 {
@@ -17,6 +18,15 @@ class Application
     private function initCli(): void
     {
         $this->cli->arguments->add([
+            'flag' => [
+                'longPrefix'  => 'flag',
+                'description' => 'Specify the flag to delete without the interactive prompt',
+            ],
+            'list-flags' => [
+                'longPrefix'  => 'list-flags',
+                'description' => 'List detected flags and exit without deleting',
+                'noValue'     => true,
+            ],
             'dry-run' => [
                 'longPrefix'  => 'dry-run',
                 'description' => 'Make it work without executing delete',
@@ -41,25 +51,69 @@ class Application
         return (bool) $this->cli->arguments->get('dry-run');
     }
 
-    public function main(): void
+    private function isListFlags(): bool
+    {
+        return (bool) $this->cli->arguments->get('list-flags');
+    }
+
+    private function selectedFlag(): ?string
+    {
+        $flag = $this->cli->arguments->get('flag');
+
+        if ($flag === null || $flag === '') {
+            return null;
+        }
+
+        return (string) $flag;
+    }
+
+    private function hasSelectedFlagArgument(): bool
+    {
+        return $this->cli->arguments->defined('flag');
+    }
+
+    private function isNonInteractive(): bool
+    {
+        return $this->isListFlags() || $this->hasSelectedFlagArgument();
+    }
+
+    public function main(): int
     {
         if ($this->help()) {
             $this->cli->usage();
-            return;
+            return 0;
         }
         $config = ConfigFactory::make();
-        $this->cli->blink()->dim('Finding flag...');
+
+        if (!$this->isNonInteractive()) {
+            $this->cli->blink()->dim('Finding flag...');
+        }
         $finder = new Finder($config);
         $finder->findFlag();
         $flagList = $finder->getFlagList();
 
-        if ($flagList->empty()) {
-            $this->cli->backgroundYellow()->out("Nothing flag.");
-            return;
+        if ($this->isListFlags()) {
+            if ($flagList->empty()) {
+                $this->cli->backgroundYellow()->out("Nothing flag.");
+                return 0;
+            }
+
+            foreach ($flagList as $flag) {
+                $this->cli->out((string) $flag);
+            }
+            return 0;
         }
 
-        $input = $this->cli->radio('Please choice me one of the following flag:', (array) $flagList);
-        $deleteFlag = $input->prompt();
+        if (!$this->hasSelectedFlagArgument() && $flagList->empty()) {
+            $this->cli->backgroundYellow()->out("Nothing flag.");
+            return 0;
+        }
+
+        $deleteFlag = $this->resolveFlag($flagList);
+
+        if ($deleteFlag === null) {
+            return 1;
+        }
 
         foreach ($finder->getTargetFileList() as $file) {
             try {
@@ -93,6 +147,31 @@ class Application
             }
         }
         $this->cli->out("End php-del");
+
+        return 0;
+    }
+
+    private function resolveFlag(FlagList $flagList): ?string
+    {
+        $selected = $this->selectedFlag();
+
+        if ($this->hasSelectedFlagArgument()) {
+            if ($selected === null) {
+                $this->cli->error("[ERROR] The --flag option requires a value.");
+                return null;
+            }
+
+            if (!$flagList->has($selected)) {
+                $this->cli->error("[ERROR] The specified flag does not exist: {$selected}");
+                return null;
+            }
+
+            return $selected;
+        }
+
+        $input = $this->cli->radio('Please choice me one of the following flag:', (array) $flagList);
+
+        return $input->prompt();
     }
 
     private function readFile(string $file): string
