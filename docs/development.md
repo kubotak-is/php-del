@@ -100,6 +100,11 @@ Prefer unit tests. For manual verification:
 vendor/bin/php-del --dry-run
 ```
 
+The checked-in fixtures intentionally include malformed marker pairs, so
+running `vendor/bin/php-del --validate` against the repository's own
+`php-del.json` is expected to fail. Exercise validation through its unit and
+E2E tests or with a disposable configuration containing only valid fixtures.
+
 If an applied run is necessary, use disposable fixture copies and verify
 `git status` immediately afterward.
 

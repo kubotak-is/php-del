@@ -44,6 +44,7 @@ final class ApplicationE2ETest extends TestCase
         self::assertStringContainsString('flag', $result['output']);
         self::assertStringContainsString('list-flags', $result['output']);
         self::assertStringContainsString('dry-run', $result['output']);
+        self::assertStringContainsString('validate', $result['output']);
     }
 
     public function testListFlagsOutputsDetectedFlagsWithoutModifying(): void
@@ -159,6 +160,71 @@ final class ApplicationE2ETest extends TestCase
         self::assertStringContainsString('Nothing flag', $result['output']);
     }
 
+    public function testValidatePassesWithoutModifyingFiles(): void
+    {
+        $this->writeConfig();
+        $this->write(
+            'Valid.php',
+            "<?php\n/** php-del start legacy */\n\$legacy = true;\n/** php-del end legacy */\n"
+        );
+        $original = $this->read('Valid.php');
+
+        $result = $this->runCli(['--validate']);
+
+        self::assertSame(0, $result['exit']);
+        self::assertStringContainsString('validation passed: 1 files, 2 markers', $result['output']);
+        self::assertSame($original, $this->read('Valid.php'));
+    }
+
+    public function testValidateReportsAllMarkerErrorsWithoutModifyingFiles(): void
+    {
+        $this->writeConfig();
+        $this->write('Open.php', "<?php\n// php-del start open\n");
+        $this->write('Invalid.php', "<?php\n// php-del line feature/value\n");
+        $open = $this->read('Open.php');
+        $invalid = $this->read('Invalid.php');
+
+        $result = $this->runCli(['--validate']);
+
+        self::assertSame(1, $result['exit']);
+        self::assertStringContainsString('src/Invalid.php:2:4 [PDEL006]', $result['output']);
+        self::assertStringContainsString('src/Open.php:2:4 [PDEL001]', $result['output']);
+        self::assertStringContainsString('validation failed: 2 errors in 2 files', $result['output']);
+        self::assertSame($open, $this->read('Open.php'));
+        self::assertSame($invalid, $this->read('Invalid.php'));
+    }
+
+    public function testValidateRejectsConflictingOptions(): void
+    {
+        $this->writeConfig();
+
+        $result = $this->runCli(['--validate', '--dry-run']);
+
+        self::assertSame(2, $result['exit']);
+        self::assertStringContainsString('cannot be combined', $result['output']);
+    }
+
+    public function testValidateReportsUnsupportedExtensionAsRuntimeError(): void
+    {
+        $this->writeConfig(['txt']);
+        $this->write('example.txt', '// php-del start legacy');
+
+        $result = $this->runCli(['--validate']);
+
+        self::assertSame(2, $result['exit']);
+        self::assertStringContainsString('src/example.txt:1:1 [PDEL012]', $result['output']);
+    }
+
+    public function testValidateAcceptsEmptyDirectory(): void
+    {
+        $this->writeConfig();
+
+        $result = $this->runCli(['--validate']);
+
+        self::assertSame(0, $result['exit']);
+        self::assertStringContainsString('validation passed: 0 files, 0 markers', $result['output']);
+    }
+
     /**
      * Run the real php-del executable inside the workspace and capture output.
      *
@@ -213,6 +279,11 @@ final class ApplicationE2ETest extends TestCase
         $source = __DIR__ . '/../actual/' . $relative;
         self::assertFileExists($source);
         copy($source, $this->path($destName ?? basename($relative)));
+    }
+
+    private function write(string $name, string $contents): void
+    {
+        file_put_contents($this->path($name), $contents);
     }
 
     private function path(string $name): string
