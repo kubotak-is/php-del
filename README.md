@@ -1,132 +1,210 @@
 # PHP-DEL
+
 [![Unit Test](https://github.com/kubotak-is/php-del/actions/workflows/phpunit.yml/badge.svg?branch=main)](https://github.com/kubotak-is/php-del/actions/workflows/phpunit.yml)
-[![Latest Stable Version](http://poser.pugx.org/kubotak-is/php-del/v)](https://packagist.org/packages/kubotak-is/php-del)
-[![PHP Version Require](http://poser.pugx.org/kubotak-is/php-del/require/php)](https://packagist.org/packages/kubotak-is/php-del)
-[![License](http://poser.pugx.org/kubotak-is/php-del/license)](https://packagist.org/packages/kubotak-is/php-del)
+[![Latest Stable Version](https://poser.pugx.org/kubotak-is/php-del/v)](https://packagist.org/packages/kubotak-is/php-del)
+[![PHP Version Require](https://poser.pugx.org/kubotak-is/php-del/require/php)](https://packagist.org/packages/kubotak-is/php-del)
+[![License](https://poser.pugx.org/kubotak-is/php-del/license)](https://packagist.org/packages/kubotak-is/php-del)
 
-Tool to remove code based on specific comments.
+PHP-DEL is an interactive CLI tool that permanently removes source code
+marked with `php-del` comments. It is useful for maintaining optional,
+environment-specific, or temporary code paths and removing one selected
+feature before a release or deployment.
 
-## Supported PHP versions
-
-PHP-DEL supports PHP versions that are currently supported by the PHP
-project. The current compatibility range is PHP 8.2 through PHP 8.5.
-
-## Install
+```php
+public function example(): void
+{
+    /** php-del start legacy-api */
+    $this->callLegacyApi();
+    /** php-del end legacy-api */
+}
 ```
+
+After selecting `legacy-api`, the marked block and its marker comments are
+removed.
+
+## Requirements
+
+- PHP 8.2, 8.3, 8.4, or 8.5
+- `ext-mbstring`
+- Composer 2
+
+PHP-DEL follows the PHP project's supported-version lifecycle.
+
+## Installation
+
+Install PHP-DEL as a development dependency:
+
+```sh
 composer require --dev kubotak-is/php-del
 ```
 
-## Configuration
-Create php-del.json in the root directory of the project
+Create `php-del.json` in the directory where the command will be run:
 
 ```json
 {
   "dirs": [
-    "src"
+    "src",
+    "resources/views"
   ],
   "extensions": [
     "php"
   ]
 }
 ```
-### dirs
-Specify the directory to be searched for files.
 
-### extensions(Optional: Default php)
-Specify the extension to be searched.
+`dirs` paths are resolved from the current working directory. The
+`extensions` setting defaults to `["php"]` when omitted. Blade files are
+included by the `php` extension because their final extension is `.php`.
 
+See [Configuration](docs/configuration.md) for all supported formats and
+examples.
 
-## Usage
+## Quick Start
 
-Add a comment with a flag for code like the following
-```php
-public function code() {
-    /** php-del start flag-a */
-    $something = 1;
-    /** php-del end flag-a */
-}
-```
+1. Add a flag to the code that should be removed:
 
-Run php-del from composer command.
+   ```php
+   /** php-del start remove-me */
+   $temporaryCode = true;
+   /** php-del end remove-me */
+   ```
 
-```
-/vendor/bin/php-del
-```
+2. Preview the operation:
 
-Select the flag and enter to perform the deletion.
+   ```sh
+   vendor/bin/php-del --dry-run
+   ```
 
-```
-Finding flag...
-Please choice me one of the following flag: (press <Enter> to select)
-  ○ flag-a (1)  
-```
+3. Select `remove-me` from the interactive list and inspect the reported
+   files.
 
-Deletion result
-```php
-public function code() {
-}
-```
+4. Run without `--dry-run` to apply the deletion:
 
-### One Line code delete
-To delete only one line.
+   ```sh
+   vendor/bin/php-del
+   ```
 
-```php
-use Hoge\Fuga\Piyo; // php-del line flag-a
-```
+5. Review the resulting diff:
 
-### Codes not covered
-The ignore comment can be added to remove it from the deletion list.
+   ```sh
+   git diff
+   ```
+
+The command scans all configured files, counts each discovered flag, and
+prompts for one flag. It then processes every file containing that flag.
+
+## Marker Reference
+
+### Delete a block
 
 ```php
-public function code() {
-    /** php-del start flag-a */
-    $something = 1;
-    /** php-del ignore start */
-    $ignore = 2;
-    /** php-del ignore end */
-    /** php-del end flag-a */
-}
+/** php-del start feature-a */
+$featureA = true;
+/** php-del end feature-a */
 ```
 
-Deletion result
+### Delete one line
+
+Place a `line` marker on the line to remove:
+
 ```php
-public function code() {
-    $ignore = 2;
-}
+use App\Legacy\Client; // php-del line feature-a
 ```
 
-### File delete
-Deletes the file itself by adding a file deletion comment.
+### Preserve part of a deleted block
+
+`ignore` markers do not have a flag. Their contents survive when the
+surrounding flagged block is removed:
+
+```php
+/** php-del start feature-a */
+$removed = true;
+/** php-del ignore start */
+$preserved = true;
+/** php-del ignore end */
+/** php-del end feature-a */
+```
+
+Result:
+
+```php
+$preserved = true;
+```
+
+### Delete an entire file
 
 ```php
 <?php
 
-/**
- * php-del file flag-a
- */
-class DeleteClass {}
+/** php-del file feature-a */
+
+final class FeatureA
+{
+}
 ```
 
-### Support file
-- .php
-- [.blade.php](/docs/blade.md)
-- [.css/.sass/.scss/.stylus](/docs/css_and_alt_css.md)
+Selecting `feature-a` deletes the file unless `--dry-run` is active.
+
+For exact matching rules and format-specific examples, see
+[Markers and behavior](docs/markers.md).
+
+## Supported Files
+
+| Format | Extensions | Documentation |
+| --- | --- | --- |
+| PHP | `.php` | [Markers and behavior](docs/markers.md) |
+| Blade | `.blade.php` | [Blade templates](docs/blade.md) |
+| CSS | `.css` | [CSS and preprocessors](docs/css_and_alt_css.md) |
+| Sass/SCSS | `.sass`, `.scss` | [CSS and preprocessors](docs/css_and_alt_css.md) |
+| Stylus | `.stylus` | [CSS and preprocessors](docs/css_and_alt_css.md) |
+
+## CLI Options
+
+```text
+--dry-run  Discover and report changes without writing or deleting files
+--help     Print the command usage
+```
+
+PHP-DEL currently selects flags interactively; there is no positional or
+non-interactive flag argument.
+
+## Safety
+
+PHP-DEL performs destructive source changes:
+
+- Rewritten files are overwritten in place.
+- `file` markers delete the matching file.
+- No backup files are created.
+- An unmatched `start` or `end` marker reports an error for that file.
+
+Run it only in a version-controlled working tree. Start with `--dry-run`,
+apply the operation without unrelated local changes, and inspect `git diff`
+before committing.
+
+## Documentation
+
+- [Documentation index](docs/README.md)
+- [Configuration](docs/configuration.md)
+- [Markers and behavior](docs/markers.md)
+- [CLI workflow and troubleshooting](docs/usage.md)
+- [Blade templates](docs/blade.md)
+- [CSS and preprocessors](docs/css_and_alt_css.md)
+- [Development guide](docs/development.md)
+- [Release guide](docs/releasing.md)
 
 ## Development
 
-Install dependencies and run the test suite on the minimum supported PHP
-version:
+The repository includes Docker environments for every supported PHP version:
 
 ```sh
 task install
 task test
-```
-
-Run the test suite on every supported PHP version:
-
-```sh
 task test-all
 ```
 
-See [the PHP support migration guide](/docs/php-support-migration.md) for the
-support policy and upgrade procedure.
+See [Development](docs/development.md) for individual PHP-version tasks,
+dependency updates, fixtures, and validation commands.
+
+## License
+
+PHP-DEL is released under the [MIT License](LICENSE).

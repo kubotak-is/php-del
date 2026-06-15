@@ -59,7 +59,12 @@ dependencies, or runtime behavior, preserve compatibility with all four.
 - `src/File/`: typed `ArrayIterator` wrappers for discovered file paths.
 - `tests/actual/`: source fixtures supplied to the parser/rewriter.
 - `tests/expect/`: byte-sensitive expected rewrite results.
-- `docs/`: supported marker syntax for Blade and stylesheet formats.
+- `docs/configuration.md`: `php-del.json` schema, path resolution, and scope.
+- `docs/markers.md`: common marker semantics and matching constraints.
+- `docs/usage.md`: safe CLI workflow, output, and troubleshooting.
+- `docs/blade.md`, `docs/css_and_alt_css.md`: format-specific syntax.
+- `docs/development.md`: local setup, test matrix, fixtures, and extensions.
+- `docs/releasing.md`: SemVer, Git tags, and Packagist publication.
 
 ## Processing flow
 
@@ -105,8 +110,8 @@ dependencies, or runtime behavior, preserve compatibility with all four.
 - Keep tests deterministic and non-interactive; test `Finder`, `Deleter`, and
   `Rewriter` directly rather than driving the CLImate prompt.
 - Do not edit `vendor/` or generated PHPUnit cache files.
-- Review `docs/php-support-migration.md` when changing the PHP compatibility
-  range or release process.
+- Review `docs/releasing.md` when changing the PHP compatibility range or
+  release process.
 
 ## Safety
 
