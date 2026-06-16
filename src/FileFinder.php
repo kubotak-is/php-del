@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace PHPDel;
 
+use Generator;
 use PHPDel\File\AllFileList;
 
 readonly class FileFinder
@@ -13,22 +14,73 @@ readonly class FileFinder
 
     public function find(): AllFileList
     {
-        $files = [];
+        return new AllFileList(iterator_to_array($this->findFiles(), false));
+    }
+
+    /**
+     * @return Generator<int, string>
+     */
+    public function findFiles(): Generator
+    {
+        foreach ($this->rootDirs() as $dir) {
+            yield from $this->rglob($dir, $this->config->getExtensions());
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function rootDirs(): array
+    {
+        $candidates = [];
+        $roots = [];
 
         foreach ($this->config->getDirs() as $dir) {
-            $directoryFiles = [];
-            $this->rglob(getcwd() . '/' . $dir, $this->config->getExtensions(), $directoryFiles);
-            $files = [...$directoryFiles, ...$files];
+            $path = getcwd() . '/' . $dir;
+            $key = realpath($path);
+            $key = $key === false ? rtrim($path, DIRECTORY_SEPARATOR) : $key;
+            $candidates[$key] = $path . '/*';
         }
 
-        return new AllFileList($files);
+        uksort(
+            $candidates,
+            static function (string $a, string $b): int {
+                $length = strlen($a) <=> strlen($b);
+
+                return $length !== 0 ? $length : strcmp($a, $b);
+            }
+        );
+
+        foreach ($candidates as $key => $path) {
+            if ($this->isNestedRoot($key, $roots)) {
+                continue;
+            }
+
+            $roots[$key] = $path;
+        }
+
+        return array_values($roots);
+    }
+
+    /**
+     * @param array<string, string> $roots
+     */
+    private function isNestedRoot(string $key, array $roots): bool
+    {
+        foreach (array_keys($roots) as $root) {
+            if ($key === $root || str_starts_with($key . DIRECTORY_SEPARATOR, $root . DIRECTORY_SEPARATOR)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * @param list<string> $extensions
-     * @param list<string> $results
+     * @return Generator<int, string>
      */
-    private function rglob(string $dir, array $extensions, array &$results): void
+    private function rglob(string $dir, array $extensions): Generator
     {
         $items = glob($dir);
 
@@ -38,7 +90,7 @@ readonly class FileFinder
 
         foreach ($items as $item) {
             if (is_dir($item)) {
-                $this->rglob($item . '/*', $extensions, $results);
+                yield from $this->rglob($item . '/*', $extensions);
                 continue;
             }
 
@@ -49,7 +101,7 @@ readonly class FileFinder
             $extension = pathinfo($item, PATHINFO_EXTENSION);
 
             if (in_array($extension, $extensions, true)) {
-                $results[] = $item;
+                yield $item;
             }
         }
     }

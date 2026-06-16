@@ -15,6 +15,11 @@ final class FinderTest extends TestCase
 
         $targetList = $finder->getTargetFileList();
         self::assertCount(13, $targetList);
+        self::assertCount(4, $finder->getTargetFileList('flag_a'));
+        self::assertCount(1, $finder->getTargetFileList('flag_b'));
+        self::assertCount(4, $finder->getTargetFileList('error-flag'));
+        self::assertCount(4, $finder->getTargetFileList('delete_flag'));
+        self::assertCount(0, $finder->getTargetFileList('unknown'));
 
         $flagList = $finder->getFlagList();
         self::assertSame('flag_a', $flagList->offsetGet('flag_a')->get());
@@ -26,5 +31,18 @@ final class FinderTest extends TestCase
         self::assertSame(8, $flagList->offsetGet('error-flag')->count());
         self::assertSame('delete_flag', $flagList->offsetGet('delete_flag')->get());
         self::assertSame(4, $flagList->offsetGet('delete_flag')->count());
+    }
+
+    public function testFinderDoesNotReadDuplicateDirsTwice(): void
+    {
+        $config = new Config(['dirs' => ['tests/actual/flag_b', 'tests/actual']]);
+        $finder = new Finder($config);
+        $finder->findFlag();
+
+        self::assertCount(7, $finder->getTargetFileList());
+
+        $flagList = $finder->getFlagList();
+        self::assertSame('flag_b', $flagList->offsetGet('flag_b')->get());
+        self::assertSame(3, $flagList->offsetGet('flag_b')->count());
     }
 }

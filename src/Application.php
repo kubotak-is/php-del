@@ -102,11 +102,21 @@ class Application
 
         $config = ConfigFactory::make();
 
-        if (!$this->isNonInteractive()) {
-            $this->cli->blink()->dim('Finding flag...');
+        $spinner = null;
+
+        if ($this->shouldShowDynamicOutput()) {
+            $spinner = $this->cli->spinner('Finding flags');
         }
+
         $finder = new Finder($config);
-        $finder->findFlag();
+        $finder->findFlag(function (string $file) use ($spinner): void {
+            $spinner?->advance('Finding flags: ' . basename($file));
+        });
+
+        if ($spinner !== null) {
+            $this->cli->out('');
+        }
+
         $flagList = $finder->getFlagList();
 
         if ($this->isListFlags()) {
@@ -132,7 +142,7 @@ class Application
             return 1;
         }
 
-        foreach ($finder->getTargetFileList() as $file) {
+        foreach ($finder->getTargetFileList($deleteFlag) as $file) {
             try {
                 $text = $this->readFile($file);
                 $deleter = new Deleter($text);
@@ -166,6 +176,14 @@ class Application
         $this->cli->out("End php-del");
 
         return 0;
+    }
+
+    private function shouldShowDynamicOutput(): bool
+    {
+        return !$this->isNonInteractive()
+            && function_exists('stream_isatty')
+            && defined('STDOUT')
+            && stream_isatty(\STDOUT);
     }
 
     private function validate(): int

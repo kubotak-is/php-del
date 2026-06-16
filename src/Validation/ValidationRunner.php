@@ -18,12 +18,12 @@ readonly class ValidationRunner
 
     public function run(): ValidationResult
     {
-        $files = iterator_to_array((new FileFinder($this->config))->find(), false);
-        sort($files, SORT_STRING);
         $diagnostics = [];
+        $fileCount = 0;
         $markerCount = 0;
 
-        foreach ($files as $file) {
+        foreach ((new FileFinder($this->config))->findFiles() as $file) {
+            ++$fileCount;
             $path = $this->relativePath($file);
             $text = file_get_contents($file);
 
@@ -56,7 +56,7 @@ readonly class ValidationRunner
             }
         }
 
-        return new ValidationResult($diagnostics, count($files), $markerCount);
+        return new ValidationResult($diagnostics, $fileCount, $markerCount);
     }
 
     private function relativePath(string $path): string
