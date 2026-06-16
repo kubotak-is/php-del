@@ -3,26 +3,34 @@ declare(strict_types=1);
 
 namespace PHPDel;
 
-use PHPDel\File\{AllFileList, TargetFileList};
+use PHPDel\File\TargetFileList;
 use PHPDel\Flag\{Flag,FlagList,FlagManager};
 
 class Finder
 {
-    private AllFileList $allFileList;
     private TargetFileList $targetFileList;
     private FlagList $flagList;
+    /** @var array<string, list<string>> */
+    private array $targetFilesByFlag = [];
 
     public function __construct(private readonly Config $config)
     {
-        $this->allFileList = (new FileFinder($this->config))->find();
     }
 
-    public function findFlag(): void
+    /**
+     * @param (callable(string): void)|null $onFile
+     */
+    public function findFlag(?callable $onFile = null): void
     {
         $flagManager = new FlagManager();
         $targetFiles = [];
+        $this->targetFilesByFlag = [];
 
-        foreach ($this->allFileList as $file) {
+        foreach ((new FileFinder($this->config))->findFiles() as $file) {
+            if ($onFile !== null) {
+                $onFile($file);
+            }
+
             $text = file_get_contents($file);
 
             if ($text === false) {
@@ -41,17 +49,27 @@ class Finder
             }
 
             $targetFiles[] = $file;
+            $fileFlags = [];
 
             foreach ($matches['flag'] as $flag) {
                 $flagManager->add(new Flag($flag));
+                $fileFlags[$flag] = true;
+            }
+
+            foreach (array_keys($fileFlags) as $flag) {
+                $this->targetFilesByFlag[$flag][] = $file;
             }
         }
         $this->flagList = $flagManager->getFlagList();
         $this->targetFileList = new TargetFileList($targetFiles);
     }
 
-    public function getTargetFileList(): TargetFileList
+    public function getTargetFileList(?string $flag = null): TargetFileList
     {
+        if ($flag !== null) {
+            return new TargetFileList($this->targetFilesByFlag[$flag] ?? []);
+        }
+
         return $this->targetFileList;
     }
 
