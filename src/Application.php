@@ -84,11 +84,6 @@ class Application
         return $this->cli->arguments->defined('flag');
     }
 
-    private function isNonInteractive(): bool
-    {
-        return $this->isListFlags() || $this->hasSelectedFlagArgument() || $this->isValidate();
-    }
-
     public function main(): int
     {
         if ($this->help()) {
@@ -109,8 +104,8 @@ class Application
         }
 
         $finder = new Finder($config);
-        $finder->findFlag(function (string $file) use ($spinner): void {
-            $spinner?->advance('Finding flags: ' . basename($file));
+        $finder->findFlag(function (string $_path) use ($spinner): void {
+            $spinner?->advance();
         });
 
         if ($spinner !== null) {
@@ -180,8 +175,7 @@ class Application
 
     private function shouldShowDynamicOutput(): bool
     {
-        return !$this->isNonInteractive()
-            && function_exists('stream_isatty')
+        return function_exists('stream_isatty')
             && defined('STDOUT')
             && stream_isatty(\STDOUT);
     }
@@ -195,11 +189,29 @@ class Application
             return 2;
         }
 
+        $spinner = null;
+
+        if ($this->shouldShowDynamicOutput()) {
+            $spinner = $this->cli->spinner('Validating markers');
+        }
+
         try {
-            $result = (new ValidationRunner(ConfigFactory::make()))->run();
+            $result = (new ValidationRunner(ConfigFactory::make()))->run(
+                function (string $_path) use ($spinner): void {
+                    $spinner?->advance();
+                }
+            );
         } catch (\Throwable $throwable) {
+            if ($spinner !== null) {
+                $this->cli->out('');
+            }
+
             $this->cli->error('[ERROR] ' . $throwable->getMessage());
             return 2;
+        }
+
+        if ($spinner !== null) {
+            $this->cli->out('');
         }
 
         foreach ($result->diagnostics as $diagnostic) {

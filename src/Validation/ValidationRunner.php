@@ -16,13 +16,16 @@ readonly class ValidationRunner
     ) {
     }
 
-    public function run(): ValidationResult
+    /**
+     * @param (callable(string): void)|null $onPath
+     */
+    public function run(?callable $onPath = null): ValidationResult
     {
         $diagnostics = [];
         $fileCount = 0;
         $markerCount = 0;
 
-        foreach ((new FileFinder($this->config))->findFiles() as $file) {
+        foreach ((new FileFinder($this->config))->findFiles($onPath) as $file) {
             ++$fileCount;
             $path = $this->relativePath($file);
             $text = file_get_contents($file);

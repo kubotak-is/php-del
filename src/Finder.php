@@ -18,19 +18,15 @@ class Finder
     }
 
     /**
-     * @param (callable(string): void)|null $onFile
+     * @param (callable(string): void)|null $onPath
      */
-    public function findFlag(?callable $onFile = null): void
+    public function findFlag(?callable $onPath = null): void
     {
         $flagManager = new FlagManager();
         $targetFiles = [];
         $this->targetFilesByFlag = [];
 
-        foreach ((new FileFinder($this->config))->findFiles() as $file) {
-            if ($onFile !== null) {
-                $onFile($file);
-            }
-
+        foreach ((new FileFinder($this->config))->findFiles($onPath) as $file) {
             $text = file_get_contents($file);
 
             if ($text === false) {

@@ -18,12 +18,13 @@ readonly class FileFinder
     }
 
     /**
+     * @param (callable(string): void)|null $onPath
      * @return Generator<int, string>
      */
-    public function findFiles(): Generator
+    public function findFiles(?callable $onPath = null): Generator
     {
         foreach ($this->rootDirs() as $dir) {
-            yield from $this->rglob($dir, $this->config->getExtensions());
+            yield from $this->rglob($dir, $this->config->getExtensions(), $onPath);
         }
     }
 
@@ -78,9 +79,10 @@ readonly class FileFinder
 
     /**
      * @param list<string> $extensions
+     * @param (callable(string): void)|null $onPath
      * @return Generator<int, string>
      */
-    private function rglob(string $dir, array $extensions): Generator
+    private function rglob(string $dir, array $extensions, ?callable $onPath): Generator
     {
         $items = glob($dir);
 
@@ -89,8 +91,12 @@ readonly class FileFinder
         }
 
         foreach ($items as $item) {
+            if ($onPath !== null) {
+                $onPath($item);
+            }
+
             if (is_dir($item)) {
-                yield from $this->rglob($item . '/*', $extensions);
+                yield from $this->rglob($item . '/*', $extensions, $onPath);
                 continue;
             }
 
