@@ -1,0 +1,22 @@
+# Normalize line endings to LF for all text files
+* text=auto eol=lf
+
+# Rewrite fixtures are compared byte-for-byte in tests; keep them LF explicitly
+tests/actual/** text eol=lf
+tests/expect/** text eol=lf
+
+# Exclude development-only files from Composer dist archives (git archive)
+/.github        export-ignore
+/.gitattributes export-ignore
+/.gitignore     export-ignore
+/docker         export-ignore
+/docs           export-ignore
+/tests          export-ignore
+/AGENTS.md      export-ignore
+/CLAUDE.md      export-ignore
+/Taskfile.yml   export-ignore
+/compose.yml    export-ignore
+/composer.lock  export-ignore
+/php-del.json   export-ignore
+/phpstan.neon   export-ignore
+/phpunit.xml    export-ignore
